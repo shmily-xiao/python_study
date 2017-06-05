@@ -17,5 +17,7 @@ class DatabaseConnectImpl(IDatabaseConnect):
 # IDatabaseConnect.register(DatabaseConnectImpl)
 
 db = DatabaseConnectImpl()
+db.getGridFS()
+DatabaseConnectImpl().getGridFS()
 
 print isinstance(db, IDatabaseConnect)
