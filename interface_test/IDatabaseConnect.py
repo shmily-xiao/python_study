@@ -12,3 +12,7 @@ class IDatabaseConnect(object):
     @abstractmethod
     def getGridFS(self, dbName='data'):
         pass
+
+    def pst(self):
+        """ 这个类可以被子类正常使用，子类可以不用去实现这个方法"""
+        print "asdasedads"

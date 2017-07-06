@@ -20,5 +20,6 @@ class DatabaseConnectImpl(IDatabaseConnect):
 db = DatabaseConnectImpl()
 db.getGridFS()
 DatabaseConnectImpl().getGridFS()
+db.pst()
 
 print isinstance(db, IDatabaseConnect)
