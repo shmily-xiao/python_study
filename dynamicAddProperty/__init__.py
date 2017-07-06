@@ -27,6 +27,8 @@ class A(object):
         print self.r
         return self.r
 
+    def __del__(self):
+        print "im asd"
 
 if __name__ == '__main__':
     # a = A()
@@ -45,5 +47,17 @@ if __name__ == '__main__':
     # print aa.a
     dd = aa.validate()
     print dd
+    aa.a = 44
+    print aa.a, A.a
+
+    # print "********************************"
+    # ints=[2,1,1,5,5,6]
+    # for i,j in enumerate(ints):
+    #     print i,j
+
+    bb = A(a)
+    print bb.a
+
+
 
 
