@@ -51,6 +51,8 @@ def printTheWindow(filename):
     pl.axis([0, length, 0, 110])
     pl.plot(x, cpu_info_list, label='cpu', linewidth=2)  # use pylab to plot x and y
     pl.plot(x, memory_info_list, label='memory')  # use pylab to plot x and y
+    pl.title('system information')
+    pl.legend()
     pl.show()  # show the plot on the screen
 
 
