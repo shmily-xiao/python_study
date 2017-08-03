@@ -6,7 +6,6 @@
 """
 
 import psutil
-import pylab as pl
 import time
 
 #function of Get CPU State
@@ -31,25 +30,30 @@ def printTheWindow(filename):
     # 打开文件
     try:
         fo = open(filename + ".txt", "r+")
-        cpu_info_str = fo.read()
+        sys_info_str = fo.read()
         fo.close()
     except Exception as e:
         print e
         print "没有temp_cpu_info.txt 文件，请先选择 --》 1.监听CPU  操作"
         return
 
-    cpu_info_list = cpu_info_str.split(",")
+    cpu_info_list = sys_info_str.split("\n")[0].split(",")
     cpu_info_list = map(lambda x:float(x), cpu_info_list)
+
+    memory_info_list = sys_info_str.split("\n")[1].split(",")
+    memory_info_list = map(lambda x:float(x), memory_info_list)
+
 
     length = len(cpu_info_list)
     x = xrange(length)
     # 画图形
-    pl.axis([0, length, 0, 100])
-    pl.plot(x, cpu_info_list)  # use pylab to plot x and y
+    import pylab as pl
+    pl.axis([0, length, 0, 110])
+    pl.plot(x, cpu_info_list, label='cpu', linewidth=2)  # use pylab to plot x and y
+    pl.plot(x, memory_info_list, label='memory')  # use pylab to plot x and y
     pl.show()  # show the plot on the screen
 
 
-    print cpu_info_list
 
 
 
@@ -62,19 +66,22 @@ if __name__ == '__main__':
     print "******* **** ******** **** *********"
     print "********* * ********** * ***********"
     print "\n"
-    print "程序会在当前目录生成一个名为 temp_cpu_info.txt 的文件，其中记录了一段时间之内CPU的运行状态（百分比）\n"
+    print "程序会在当前目录生成一个名为 temp_cpu_info.txt 的文件，\n其中记录了一段时间之内CPU的运行状态和内存的使用情况（百分比）\n"
     filename = "temp_cpu_info"
-    oper_info = raw_input("请你选择操作 1. 监听CPU   2. 输出图表 :  ")
+    oper_info = raw_input("请你选择操作 1. 监听CPU和内存使用情况   2. 输出图表   -》  ")
     if oper_info == "1":
         times = raw_input("请输入要监听CPU的时间长度（秒） :  ")
+        print "监听开始了！请骚等..."
         cpu_info = []
+        memory_info = []
         start = time.time()
         for i in xrange(int(times)):
             cpu_info.append(getCPUStatue())
+            memory_info.append(getMemoryStatue())
 
         # 打开文件
         fo = open(filename+".txt", "wb")
-        fo.write(cpu_info.__repr__()[1:-1])
+        fo.write(cpu_info.__repr__()[1:-1]+"\n" + memory_info.__repr__()[1:-1])
         fo.close()
 
         end = time.time()
