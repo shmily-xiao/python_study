@@ -68,6 +68,7 @@ if __name__ == '__main__':
     print "******* **** ******** **** *********"
     print "********* * ********** * ***********"
     print "\n"
+    print "powered by wangzaijun \n"
     print "程序会在当前目录默认生成一个名为 temp_cpu_info.txt 的文件，\n其中记录了一段时间之内CPU的运行状态和内存的使用情况（百分比）\n"
     filename = "temp_cpu_info"
     need_name = raw_input("请你选择操作 1. 使用默认名称   2. 自定义名称   -》  ")
