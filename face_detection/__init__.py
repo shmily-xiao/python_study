@@ -9,8 +9,9 @@ import os
 
 current_path = os.getcwd()
 print current_path
-photopath = current_path + '\\avatar.jpg'
-classifier = current_path +  '\\haarcascade_frontalface_default.xml'
+photopath = current_path + '\\avatar.JPG'
+classifier = current_path +  '\\haarcascade_frontalface_alt.xml'
+
 
 print classifier
 #读取图片
