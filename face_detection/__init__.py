@@ -9,18 +9,21 @@ import os
 
 current_path = os.getcwd()
 print current_path
-photopath = current_path + '\\avatar.JPG'
-classifier = current_path +  '\\haarcascade_frontalface_alt.xml'
+photopath = current_path + '\\avatar4.jpg'
+# 效果最差 haarcascade_frontalface_alt_tree
+# 效果适中 haarcascade_frontalface_alt2
+# 效果容错率较高 haarcascade_frontalface_default
+classifier = current_path +  '\\haarcascade_frontalface_alt2.xml'
+# classifier = current_path +  '\\haarcascade_frontalface_default.xml'
 
 
-print classifier
 #读取图片
 image = cv2.imread(photopath)
 
 #灰度转换
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-#获取人脸识别训练数据
+#获取人脸检测训练数据
 face_casacade = cv2.CascadeClassifier(classifier)
 
 #探测人脸
