@@ -9,7 +9,7 @@ import os
 
 current_path = os.getcwd()
 print current_path
-photopath = current_path + '\\avatar4.jpg'
+photopath = current_path + '\\avatar.jpg'
 # 效果最差 haarcascade_frontalface_alt_tree
 # 效果适中 haarcascade_frontalface_alt2
 # 效果容错率较高 haarcascade_frontalface_default
@@ -37,9 +37,14 @@ windowName = "Object Detection"
 
 while True:  #为了防止
     #人脸个数
-    print(len(faces))
+    # print(len(faces))
+    count = 0
     for x, y, width, height in faces:
+        count = count + 1
+        print  x, y, width, height
         cv2.rectangle(image, (x, y), (x + width, y + height), color, strokeWeight)
+        face_img = image[y :y + height,x :x + width]
+        cv2.imshow(str(count), face_img)
 
     #展示人脸识别效果
     cv2.imshow(windowName, image)
