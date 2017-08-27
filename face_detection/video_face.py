@@ -19,6 +19,8 @@ faceCascade = cv2.CascadeClassifier(classifier)
 
 video_capture = cv2.VideoCapture(0)
 
+count = 0
+
 while True:
 
    # Capture frame-by-frame
@@ -26,6 +28,14 @@ while True:
    ret, frame = video_capture.read()
 
    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+   # cv2.imshow('Video2', frame)
+   if cv2.waitKey(1) & 0xFF == ord('p'):
+       cv2.imwrite("zipai{0}.jpg".format(count),frame)
+       print "success {0} !".format(count)
+       count = count + 1
+       # break
+
 
    faces = faceCascade.detectMultiScale(
 
@@ -44,7 +54,6 @@ while True:
    # Draw a rectangle around the faces
 
    for (x, y, w, h) in faces:
-
       cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
    # Display the resulting frame
