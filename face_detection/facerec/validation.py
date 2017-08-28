@@ -206,7 +206,7 @@ class KFoldCrossValidation(Validation):
         for i in range(0,c):
             idx = np.where(y==i)[0]
             n = min(n, idx.shape[0])
-            foldIndices.append(idx.tolist()); 
+            foldIndices.append(idx.tolist())
 
         # I assume all folds to be of equal length, so the minimum
         # number of samples in a class is responsible for the number

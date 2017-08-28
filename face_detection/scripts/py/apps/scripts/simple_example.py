@@ -90,11 +90,13 @@ if __name__ == "__main__":
     # You'll need at least a path to your image data, please see
     # the tutorial coming with this source code on how to prepare
     # your image data:
-    if len(sys.argv) < 2:
-        print "USAGE: facerec_demo.py </path/to/images>"
-        sys.exit()
+    # if len(sys.argv) < 2:
+    #     print "USAGE: facerec_demo.py </path/to/images>"
+    #     sys.exit()
+    # [X, y] = read_images(sys.argv[1])
+    path = "D:\\Python\\python_study\\face_detection\\att_faces"
     # Now read in the image data. This must be a valid path!
-    [X,y] = read_images(sys.argv[1])
+    [X,y] = read_images(path)
     # Then set up a handler for logging:
     handler = logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
