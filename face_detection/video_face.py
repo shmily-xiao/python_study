@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-  摄像头 人脸检测
+  摄像头 人脸检测 按P拍照
 """
 import cv2
 import os
