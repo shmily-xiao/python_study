@@ -38,7 +38,7 @@ from face_detection.facerec.feature import Fisherfaces
 from face_detection.facerec.distance import EuclideanDistance
 from face_detection.facerec.classifier import NearestNeighbor
 from face_detection.facerec.model import PredictableModel
-from face_detection.facerec.validation import KFoldCrossValidation
+from face_detection.facerec.validation import KFoldCrossValidation,LeaveOneOutCrossValidation
 from face_detection.facerec.visual import subplot
 from face_detection.facerec.util import minmax_normalize
 from face_detection.facerec.serialization import save_model, load_model
@@ -94,7 +94,8 @@ if __name__ == "__main__":
     #     print "USAGE: facerec_demo.py </path/to/images>"
     #     sys.exit()
     # [X, y] = read_images(sys.argv[1])
-    path = "D:\\Python\\python_study\\face_detection\\att_faces"
+    current_path = os.getcwd()
+    path = current_path + "\\..\\..\\..\\..\\att_faces"
     # Now read in the image data. This must be a valid path!
     [X,y] = read_images(path)
     # Then set up a handler for logging:
@@ -125,7 +126,8 @@ if __name__ == "__main__":
     # Plot them and store the plot to "python_fisherfaces_fisherfaces.pdf"
     subplot(title="Fisherfaces", images=E, rows=4, cols=4, sptitle="Fisherface", colormap=cm.jet, filename="fisherfaces.png")
     # Perform a 10-fold cross validation
-    cv = KFoldCrossValidation(model, k=10)
+    cv = LeaveOneOutCrossValidation(model)
+    # cv.model.predict()
     cv.validate(X, y)
     # And print the result:
     print cv
