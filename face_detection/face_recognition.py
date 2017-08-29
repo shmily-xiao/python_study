@@ -2,19 +2,9 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from face_detection.facerec.feature import Fisherfaces
-from face_detection.facerec.distance import EuclideanDistance
-from face_detection.facerec.classifier import NearestNeighbor
-from face_detection.facerec.model import PredictableModel
-from face_detection.facerec.validation import KFoldCrossValidation,LeaveOneOutCrossValidation
-from face_detection.facerec.visual import subplot
-from face_detection.facerec.util import minmax_normalize
-from face_detection.facerec.serialization import save_model, load_model
-# import numpy, matplotlib and logging
 import numpy as np
 from PIL import Image
-import matplotlib.cm as cm
-import logging
+import cv2
 
 def read_images(path, sz=None):
     """Reads the images in a given folder, resizes images on the fly if size is given.
@@ -51,9 +41,76 @@ def read_images(path, sz=None):
             c = c+1
     return [X,y]
 
-def train():
+def train_and_save():
     current_path = os.getcwd()
     path = current_path + "\\att_faces"
     images,values = read_images(path)
+    model = cv2.createFisherFaceRecognizer()
+    dir(model)
+    model.train(images, np.asarray(values))
+    model.save("model_faces.data")
 
+
+def detect_faces(image):
+    current_path = os.getcwd()
+    # 效果最差 haarcascade_frontalface_alt_tree
+    # 效果适中 haarcascade_frontalface_alt2
+    # 效果容错率较高 haarcascade_frontalface_default
+    classifier = current_path + '\\haarcascade_frontalface_alt2.xml'
+    # classifier = current_path +  '\\haarcascade_frontalface_default.xml'
+
+    # 灰度转换
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # 获取人脸检测训练数据
+    face_casacade = cv2.CascadeClassifier(classifier)
+
+    # 探测人脸
+    faces = face_casacade.detectMultiScale(image)
+
+    return faces
+
+def get_image():
+    current_path = os.getcwd()
+    print current_path
+    photopath = current_path + '\\att_faces\\s10\\6.pgm'
+
+    # 读取图片
+    image = cv2.imread(photopath)
+
+    return image
+
+def predict(cv_image):
+
+    faces = detect_faces(cv_image)
+    result = None
+    for x, y, width, height in faces:
+        face_img = image[y:y + height, x:x + width]
+        face_img = cv2.resize(face_img, (92, 112), fx=0, fy=0)
+        # cv2.imshow("asdasd",face_img)
+        model = cv2.createFisherFaceRecognizer()
+        # model = cv2.createEigenFaceRecognizer()
+        model.load("model_faces.data")
+        prediction = model.predict(np.asarray(face_img))
+        print prediction[0]
+        # result = {
+        #     'face': {
+        #         'name': prediction[0],
+        #         'distance': prediction[1],
+        #         'coords': {
+        #             'x': str(faces[0][0]),
+        #             'y': str(faces[0][1]),
+        #             'width': str(faces[0][2]),
+        #             'height': str(faces[0][3])
+        #         }
+        #     }
+        # }
+    # return result
+
+if __name__ == '__main__':
+    # model = cv2.createFisherFaceRecognizer()
+    # print dir(model)# ['__class__', '__delattr__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'getAlgorithm', 'getBool', 'getDouble', 'getInt', 'getMat', 'getMatVector', 'getParams', 'getString', 'load', 'paramHelp', 'paramType', 'predict', 'save', 'setAlgorithm', 'setBool', 'setDouble', 'setInt', 'setMat', 'setMatVector', 'setString', 'train', 'update']
+    # train_and_save()
+    image = get_image()
+    predict(image)
 
