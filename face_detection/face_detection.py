@@ -4,7 +4,7 @@
 """
   人脸检测
 """
-from cv2 import cv2
+import cv2
 import os
 
 current_path = os.getcwd()
