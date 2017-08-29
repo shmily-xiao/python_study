@@ -2,7 +2,7 @@ import sys
 # append facerec to module search path
 sys.path.append("../..")
 import cv2
-from facedet.detector import SkinFaceDetector
+from face_detection.facedet.detector import SkinFaceDetector
 import numpy as np
 import os
 

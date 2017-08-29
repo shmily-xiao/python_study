@@ -4,7 +4,7 @@
 """
   从照片中获取人脸，并将其设置成为92x112的大小
 """
-from cv2 import cv2
+import cv2
 import os
 
 current_path = os.getcwd()

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import math as math
 import random as random
@@ -283,7 +286,7 @@ class LeaveOneOutCrossValidation(Validation):
             X [dim x num_data] input data to validate on
             y [1 x num_data] classes
         """
-        #(X,y) = shuffle(X,y)
+        (X,y) = shuffle(X,y)
         tp, fp, tn, fn = (0,0,0,0)
         n = y.shape[0]
         for i in range(0,n):
