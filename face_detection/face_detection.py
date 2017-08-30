@@ -17,7 +17,7 @@ classifier = current_path +  '\\haarcascade_frontalface_alt2.xml'
 # classifier = current_path +  '\\haarcascade_frontalface_default.xml'
 
 
-#读取图片
+#读取图片x
 image = cv2.imread(photopath)
 cv2.imshow("xx", image)
 #灰度转换
