@@ -15,7 +15,7 @@ def subplot(title, images, rows, cols, sptitle="subplot",sptitles=[] , colormap=
     fig = plot.figure()
     fig.text(.5, .95, title, horizontalalignment="center")
     for i in xrange(len(images)):
-        ax0 = fig.add_subplot(rows, cols, (1 + 1))
+        ax0 = fig.add_subplot(rows, cols, (i + 1))
         plot.setp(ax0.get_xticklabels(), visible=False)
         plot.setp(ax0.get_yticklabels(), visible=False)
         if len(sptitles) == len(images):
@@ -23,6 +23,7 @@ def subplot(title, images, rows, cols, sptitle="subplot",sptitles=[] , colormap=
         else:
             plot.title("%s #%s" % (sptitle, (i+1)), create_font())
         plot.imshow(np.asarray(images[i]), cmap=colormap)
+        # plot.show()
     if filename is None:
         plot.show()
     else:

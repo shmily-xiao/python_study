@@ -14,15 +14,15 @@ def pca(X, y, num_components=0):
     """
     # 得到矩阵的 行和列
     # n 为列 d 行
-    # [n, d] = X.shape
-    [d, n] = X.shape
+    [n, d] = X.shape
+    # [d, n] = X.shape
     if (num_components <= 0) or (num_components > n):
         num_components = n
     # 计算均值
     mu = X.mean(axis=0)
     # 减去均值
     X = X - mu
-    if n > d:
+    if n < d:
         # 如果行大于列
         # 这么做的原因是，生成最小的队列(d x d)
 
@@ -62,6 +62,8 @@ def pca(X, y, num_components=0):
     return [eigenvalues, eigenvectors, mu]
 
 
+# 这里可能和公式有点不同的地方，那是因为利用了一个公式
+# A*B^T = (B*A)^T
 def project(W, X, mu=None):
     """
         如果均值存在就计算减去均值的点积，否则就直接计算
@@ -86,3 +88,10 @@ def reconstruct(W, Y, mu=None):
     if mu is None:
         return np.dot(Y, W.T)
     return np.dot(Y, W.T) + mu
+
+
+if __name__ == '__main__':
+    x = [[1,2],[2,3]]
+    y = [[2,3],[3,4]]
+    print np.dot(np.asarray(x),np.asarray(y).T)
+    print np.dot(np.asarray(y),np.asarray(x)).T
