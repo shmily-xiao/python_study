@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-from PIL import Image
+
 import numpy as np
-import sys
 
 
 def pca(X, y, num_components=0):
