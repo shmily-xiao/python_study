@@ -17,6 +17,7 @@ path = current_path + "\\..\\..\\att_faces"
 # read images
 [X , y] = read_images (path)
 # compute the eigenfaces model
-model = EigenfacesModel (X [1:] , y [1:])
+# 其实这里就只训练了1-40的数据，X[0]的数据不在训练范围之类
+model = EigenfacesModel (X [0:(len(X)-1)] , y [0:(len(y)-1)])
 # get a prediction for the first observation
-print " expected =", y[0], "/", " predicted =", model.predict(X[0])
+print " expected =", y[len(X)-1], "/", " predicted =", model.predict(X[len(X)-1])

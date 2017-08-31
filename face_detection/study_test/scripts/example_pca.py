@@ -13,13 +13,14 @@ import matplotlib.cm as cm
 from subspace import pca
 from face_detection.study_test.util import asRowMatrix, read_images, normalize
 from face_detection.study_test.visual import subplot
-from face_detection.study_test.scripts.subspace import project, reconstruct
+from face_detection.study_test.scripts.subspace import project, reconstruct, LBP
 
 # 读取图片
 current_path = os.getcwd()
 path = current_path + "\\..\\..\\att_faces"
 [X, y] = read_images(path)
-
+# X = LBP(X)
+# X = LBP(X)
 # 执行一个完整的主成分分析
 # 获取特征值，特征向量，均值
 [D, W, mu] = pca(asRowMatrix(X), y)

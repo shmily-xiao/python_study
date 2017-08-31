@@ -23,6 +23,8 @@ class BaseModel(object):
     def compute(self, X, y):
         raise NotImplementedError(" Every BaseModel must implement the compute method .")
 
+    # 如果要预测的话这个地方的X就是我们要识别的照片了
+    # 注意放入照片的size
     def predict(self, X):
         # 最大的可表示的数
         minDist = np.finfo("float").max
@@ -33,8 +35,10 @@ class BaseModel(object):
             dist = self.dist_metric(self.projections[i], Q)
             # 记录最小的那个距离
             # 然后返回相应的识别结果
+            # 这地方可以设置阀值，超过一定的阀值就不算识别成功
             if dist < minDist:
                 minDist = dist
+                # 在子类中会动态添加
                 minClass = self.y[i]
 
         return minClass
@@ -46,11 +50,15 @@ class EigenfacesModel(BaseModel):
                                               num_components=num_components)
 
     def compute(self, X, y):
+        # 主成分分析，获取特征值，特征向量，和平均值
         [D, self.W, self.mu] = pca(asRowMatrix(X), y, self.num_components)
         # store labels
+        # 识别的类别存放的地方
         self.y = y
         # store projections
         for xi in X:
+            # 预处理
+            # 将图像与特征向量做点积
             self.projections.append(project(self.W, xi.reshape(1,- 1), self.mu))
 
 
