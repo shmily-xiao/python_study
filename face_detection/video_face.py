@@ -31,7 +31,7 @@ while True:
 
    # cv2.imshow('Video2', frame)
    if cv2.waitKey(1) & 0xFF == ord('p'):
-       cv2.imwrite("zipai{0}.jpg".format(count),frame)
+       cv2.imwrite(current_path+"\\image\\zipai{0}.jpg".format(count),frame)
        print "success {0} !".format(count)
        count = count + 1
        # break
@@ -54,7 +54,8 @@ while True:
    # Draw a rectangle around the faces
 
    for (x, y, w, h) in faces:
-      cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+       cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 1)
+       cv2.putText(frame, "wangzaijun", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 1)
 
 
    # Display the resulting frame
@@ -65,6 +66,11 @@ while True:
 
        break
 
+
+# def draw_text(self, frame, text, x, y, color=BGR_COMMON['green'], thickness=1.3, size=0.3, ):
+#    if x is not None and y is not None:
+#        cv2.putText(
+#            frame, text, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, size, color, thickness)
 # When everything is done, release the capture
 
 video_capture.release()

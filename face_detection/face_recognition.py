@@ -45,8 +45,9 @@ def train_and_save():
     current_path = os.getcwd()
     path = current_path + "\\att_faces"
     images,values = read_images(path)
-    model = cv2.createFisherFaceRecognizer()
-    dir(model)
+    # model = cv2.createEigenFaceRecognizer()
+    model = cv2.createLBPHFaceRecognizer()
+    # dir(model)
     model.train(images, np.asarray(values))
     model.save("model_faces.data")
 
@@ -73,7 +74,8 @@ def detect_faces(image):
 def get_image():
     current_path = os.getcwd()
     print current_path
-    photopath = current_path + '\\att_faces\\s10\\6.pgm'
+    # photopath = current_path + '\\zipai0.jpg'
+    photopath = current_path + '\\image\\2.jpg'
 
     # 读取图片
     image = cv2.imread(photopath)
@@ -83,13 +85,15 @@ def get_image():
 def predict(cv_image):
 
     faces = detect_faces(cv_image)
+    cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
     result = None
     for x, y, width, height in faces:
-        face_img = image[y:y + height, x:x + width]
+        face_img = cv_image[y:y + height, x:x + width]
         face_img = cv2.resize(face_img, (92, 112), fx=0, fy=0)
-        # cv2.imshow("asdasd",face_img)
-        model = cv2.createFisherFaceRecognizer()
-        # model = cv2.createEigenFaceRecognizer()
+        cv2.imshow("asdasd",face_img)
+        # model = cv2.createFisherFaceRecognizer()
+        # model = cv2.createFisherFaceRecognizer()
+        model = cv2.createLBPHFaceRecognizer()
         model.load("model_faces.data")
         prediction = model.predict(np.asarray(face_img))
         print prediction[0]
@@ -110,7 +114,7 @@ def predict(cv_image):
 if __name__ == '__main__':
     # model = cv2.createFisherFaceRecognizer()
     # print dir(model)# ['__class__', '__delattr__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'getAlgorithm', 'getBool', 'getDouble', 'getInt', 'getMat', 'getMatVector', 'getParams', 'getString', 'load', 'paramHelp', 'paramType', 'predict', 'save', 'setAlgorithm', 'setBool', 'setDouble', 'setInt', 'setMat', 'setMatVector', 'setString', 'train', 'update']
-    # train_and_save()
+    train_and_save()
     image = get_image()
     predict(image)
 

@@ -3,7 +3,7 @@
 
 import numpy as np
 from util import asRowMatrix
-from scripts.subspace import pca, project
+from scripts.subspace import pca, project,fisherfaces
 
 from distance import EuclideanDistance
 
@@ -61,5 +61,21 @@ class EigenfacesModel(BaseModel):
             # 将图像与特征向量做点积
             self.projections.append(project(self.W, xi.reshape(1,- 1), self.mu))
 
+class FisherfacesModel(BaseModel):
+    def __init__(self, X=None, y=None, dist_metric=EuclideanDistance(), num_components=0):
+        super(FisherfacesModel, self).__init__(X=X, y=y, dist_metric=dist_metric,
+                                              num_components=num_components)
+
+    def compute(self, X, y):
+        # 主成分分析，获取特征值，特征向量，和平均值
+        [D, self.W, self.mu] = fisherfaces(asRowMatrix(X), y, self.num_components)
+        # store labels
+        # 识别的类别存放的地方
+        self.y = y
+        # store projections
+        for xi in X:
+            # 预处理
+            # 将图像与特征向量做点积
+            self.projections.append(project(self.W, xi.reshape(1,- 1), self.mu))
 
 
