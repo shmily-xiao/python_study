@@ -10,7 +10,7 @@ import os
 current_path = os.getcwd()
 print current_path
 for index in xrange(10):
-    photopath = current_path + '\\image\\zipai{0}.jpg'.format(index+1)
+    photopath = current_path + '\\image\\{0}.jpg'.format(index+1)
     # 效果最差 haarcascade_frontalface_alt_tree
     # 效果适中 haarcascade_frontalface_alt2
     # 效果容错率较高 haarcascade_frontalface_default
@@ -35,9 +35,9 @@ for index in xrange(10):
     for x, y, width, height in faces:
         face_img = image[y:y + height, x:x + width]
         # cv2.rectangle(image, (x, y), (x + width, y + height), color, strokeWeight)
-        face_img = cv2.resize(face_img,(92,112),fx=0,fy=0)
+        face_img = cv2.resize(face_img,(150,150),fx=0,fy=0)
         face_img = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
-        path = current_path+"\\att_faces\\s41\\{0}.pgm".format(index+1)
+        path = current_path+"\\att_faces\\s41\\1{0}.pgm".format(index+1)
         print path
         cv2.imwrite(path,face_img)
         cv2.imshow("1", face_img)

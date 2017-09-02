@@ -22,29 +22,32 @@ def pca(X, y, num_components=0):
     mu = X.mean(axis=0)
     # 减去均值
     X = X - mu
-    if n < d:
-        # 如果行大于列
-        # 这么做的原因是，生成最小的队列(d x d)
 
-        # 计算两个数的点积 转置之后 X 它本身  相当于平方
-        C = np.dot(X.T, X)
-        # 计算对称矩阵的 特征值和特征向量
-        [eigenvalues, eigenvectors] = np.linalg.eigh(C)
-    else:
-        # 列大于行
+    C = np.dot(X.T, X)
+    [eigenvalues, eigenvectors] = np.linalg.eigh(C)
+    # if n > d:
+    #     # 如果行大于列
+    #     # 这么做的原因是，生成最小的队列(d x d)
+    #
+    #     # 计算两个数的点积 转置之后 X 它本身  相当于平方
+    #     C = np.dot(X.T, X)
+    #     # 计算对称矩阵的 特征值和特征向量
+    #     [eigenvalues, eigenvectors] = np.linalg.eigh(C)
+    # else:
+    #     # 列大于行
+    #
+    #     # 计算两个数的点积 转置之后 X 它本身  相当于平方
+    #     C = np.dot(X, X.T)
+    #     # 计算对称矩阵的 特征值和特征向量
+    #     [eigenvalues, eigenvectors] = np.linalg.eigh(C)
 
-        # 计算两个数的点积 转置之后 X 它本身  相当于平方
-        C = np.dot(X, X.T)
-        # 计算对称矩阵的 特征值和特征向量
-        [eigenvalues, eigenvectors] = np.linalg.eigh(C)
-
-        for i in xrange(n):
-            #  np.linalg.norm(eigenvectors[:, i]) 计算矩阵获向量的范数
-            # 默认是 Frobenius norm
-            # 就是 将 所有的元素平方 求和 开根号
-            # http://astrowww.bnu.edu.cn/sites/Computational_Astronomy/html/5ketang/2jiangyi/Chen_kejian/%E6%96%B010.pdf
-            # 这里可以理解是为了“归一化”
-            eigenvectors[:, i] = eigenvectors[:, i] / np.linalg.norm(eigenvectors[:, i])
+    for i in xrange(d):
+        #  np.linalg.norm(eigenvectors[:, i]) 计算矩阵获向量的范数
+        # 默认是 Frobenius norm
+        # 就是 将 所有的元素平方 求和 开根号
+        # http://astrowww.bnu.edu.cn/sites/Computational_Astronomy/html/5ketang/2jiangyi/Chen_kejian/%E6%96%B010.pdf
+        # 这里可以理解是为了“归一化”
+        eigenvectors[:, i] = eigenvectors[:, i] / np.linalg.norm(eigenvectors[:, i])
     # or simply perform an economy size decomposition
     # eigenvectors , eigenvalues , variance = np. linalg . svd (X.T, full_matrices = False )
     # sort eigenvectors descending by their eigenvalue
@@ -162,6 +165,31 @@ def LBP(X):
         index = index + 1
 
     return LBP_A
+
+def LBP_one(X):
+    # A = np.asarray(X)
+    array = np.asarray(X)
+    LBP_A = np.zeros(array.shape)
+
+    [cols, rows] = array.shape
+
+    for x in xrange(cols):
+        for y in xrange(rows):
+            sum = 0
+            center = array[x][y]
+            sum = sum + compute_center_value(array, cols, rows, x - 1, y - 1, center, 7)
+            sum = sum + compute_center_value(array, cols, rows, x, y - 1, center, 6)
+            sum = sum + compute_center_value(array, cols, rows, x - 1, y - 1, center, 5)
+            sum = sum + compute_center_value(array, cols, rows, x + 1, y, center, 4)
+            sum = sum + compute_center_value(array, cols, rows, x + 1, y + 1, center, 3)
+            sum = sum + compute_center_value(array, cols, rows, x, y + 1, center, 2)
+            sum = sum + compute_center_value(array, cols, rows, x - 1, y + 1, center, 1)
+            sum = sum + compute_center_value(array, cols, rows, x - 1, y, center, 0)
+
+            LBP_A[x][y] = sum
+
+    return LBP_A
+
 
 def compute_center_value(array, cols, rows, x,y,center, num):
     """

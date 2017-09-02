@@ -50,16 +50,22 @@ class EigenfacesModel(BaseModel):
                                               num_components=num_components)
 
     def compute(self, X, y):
-        # 主成分分析，获取特征值，特征向量，和平均值
-        [D, self.W, self.mu] = pca(asRowMatrix(X), y, self.num_components)
+        if not self.W and not self.mu :
+            # 主成分分析，获取特征值，特征向量，和平均值
+            [D, self.W, self.mu] = pca(asRowMatrix(X), y, self.num_components)
+
+        print "特征值，特征向量，和平均值 计算完毕...."
         # store labels
         # 识别的类别存放的地方
         self.y = y
+        self.X = X
         # store projections
         for xi in X:
             # 预处理
             # 将图像与特征向量做点积
             self.projections.append(project(self.W, xi.reshape(1,- 1), self.mu))
+
+        print "预处理完毕..."
 
 class FisherfacesModel(BaseModel):
     def __init__(self, X=None, y=None, dist_metric=EuclideanDistance(), num_components=0):
@@ -67,15 +73,20 @@ class FisherfacesModel(BaseModel):
                                               num_components=num_components)
 
     def compute(self, X, y):
-        # 主成分分析，获取特征值，特征向量，和平均值
-        [D, self.W, self.mu] = fisherfaces(asRowMatrix(X), y, self.num_components)
+        if not self.W and not self.mu:
+            # 主成分分析，获取特征值，特征向量，和平均值
+            [D, self.W, self.mu] = fisherfaces(asRowMatrix(X), y, self.num_components)
+        print "特征值，特征向量，和平均值 计算完毕...."
         # store labels
         # 识别的类别存放的地方
         self.y = y
+        self.X = X
         # store projections
         for xi in X:
             # 预处理
             # 将图像与特征向量做点积
             self.projections.append(project(self.W, xi.reshape(1,- 1), self.mu))
+
+        print "预处理完毕..."
 
 
