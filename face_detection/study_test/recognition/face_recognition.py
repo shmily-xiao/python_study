@@ -64,7 +64,7 @@ class RecognitionUtils(object):
         X, y = [], []
         for dirname, dirnames, filenames in os.walk(path):
             for subdirname in dirnames:
-                if not "w"in subdirname and  not "W" in subdirname:
+                if not "z" in subdirname and not "j" in subdirname:
                     continue
 
                 subject_path = os.path.join(dirname, subdirname)
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     #
     #     if cv2.waitKey(1) & 0xFF == ord('q'):
     #         break
-    path = "D:\\Python\\python_study\\face_detection\\lfw"
+    path = "D:\\working\\python\\python_study\\face_detection\\lfw"
     import time
     before = time.time()
     [X,y] = util.read_my_images(path)
