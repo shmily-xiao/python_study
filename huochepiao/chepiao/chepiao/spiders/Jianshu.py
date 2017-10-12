@@ -22,5 +22,7 @@ class JianShu(CrawlSpider):
              item['url'] = 'http://www.jianshu.com/' + url[0]
              item['author'] = author
 
+             print item
+
              yield item
 

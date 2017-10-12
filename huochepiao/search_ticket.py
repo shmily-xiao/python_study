@@ -37,7 +37,9 @@ class SearchTicket(object):
 
                   }
 
-        response = requests.request("GET",url, **kwargs)
+        # response = requests.request("GET",url, **kwargs)
+        url = "https://kyfw.12306.cn/otn/leftTicket/query?leftTicketDTO.train_date=2017-10-12&leftTicketDTO.from_station=BJP&leftTicketDTO.to_station=CUW&purpose_codes=ADULT"
+        response = requests.get(url,verify=False)
         #
         print response.text
 
