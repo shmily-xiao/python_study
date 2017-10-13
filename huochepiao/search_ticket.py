@@ -4,15 +4,12 @@
 
 import requests
 
+
+# 从北京到成都应该特别关注 G309 车次
 class StockInfo(object):
-    def __init__(self, *param):
-        self.realBusNo = param[0]
-        self.displayBusNo = param[1]
-        self.fromLocation = param[2]
-        self.toLocation = param[3]
-        self.hasSeat = param[4]
 
-
+    def function(self):
+        pass
 
 
 
@@ -55,16 +52,70 @@ class SearchTicket(object):
         # print response.json()
 
         results = json.get("data").get("result")
-        for result in results:
-            store_list = result.split("|")
-            print store_list[2]
-            print store_list[3]
-            print store_list[4]
-            print store_list[5]
-            print store_list[6]
-            break
+        # for result in results:
+        #     store_list = result.split("|")
+
+        data = self.data_converter(results,  json.get("data").get("map"))
+        for item in data:
+            print item.__dict__
 
 
+    def data_converter(self, result, data_map):
+
+        cp = []
+        if not result:
+            return cp
+        for co in xrange(len(result)):
+            ct = StockInfo()
+            cn = result[co].split("|")
+            ct.secretStr = cn[0]
+            ct.buttonTextInfo = cn[1]
+
+            cr = StockInfo()
+
+            cr.train_no = cn[2]  # 火车编号
+            cr.station_train_code = cn[3]  # 火车站的火车编号 ?
+            cr.start_station_telecode = cn[4]   # 始发站火车站的电话代码 ? 还是远程代码 ?
+            cr.end_station_telecode = cn[5]
+            cr.from_station_telecode = cn[6]
+            cr.to_station_telecode = cn[7]
+            cr.start_time = cn[8]    # 开车时间
+            cr.arrive_time = cn[9]    # 到达时间
+            cr.lishi = cn[10]    # 历时 就是要经过多少时间
+            cr.canWebBuy = cn[11]    # 我们能不能买 ?
+            cr.yp_info = cn[12]      # # 余票数据？
+            cr.start_train_date = cn[13]
+            cr.train_seat_feature = cn[14]
+            cr.location_code = cn[15]
+            cr.from_station_no = cn[16]   # 乘客上车的站的编号(估计是在这个城市的编号 , 因为要考虑到一个城市多个站的情况) ?
+            cr.to_station_no = cn[17]   # 乘客下车的站的编号
+            cr.is_support_card = cn[18]    # 是否支持刷卡 ?
+            cr.controlled_train_flag = cn[19]
+            cr.gg_num = cn[20] if cn[20] else "--"
+            cr.gr_num = cn[21] if cn[21] else "--"
+            cr.qt_num = cn[22] if cn[22] else "--"
+            cr.rw_num = cn[23] if cn[23] else "--"
+            cr.rz_num = cn[24] if cn[24] else "--"
+            cr.tz_num = cn[25] if cn[25] else "--"
+            cr.wz_num = cn[26] if cn[26] else "--"
+            cr.yb_num = cn[27] if cn[27] else "--"
+            cr.yw_num = cn[28] if cn[28] else "--"
+            cr.yz_num = cn[29] if cn[29] else "--"
+            cr.ze_num = cn[30] if cn[30] else "--"
+            cr.zy_num = cn[31] if cn[31] else "--"
+            cr.swz_num = cn[32] if cn[32] else "--"
+            cr.srrb_num = cn[33] if cn[33] else "--"
+            cr.yp_ex = cn[34]
+            cr.seat_types = cn[35]   # 座位类型
+            cr.from_station_name = data_map[cn[6]]  # 始发站火车站名
+            cr.to_station_name = data_map[cn[7]]   # 终点站火车站名
+
+            ct.queryLeftNewDTO = cr
+            co += 1
+
+            cp.append(ct)
+
+        return cp
 
     def request_debug(self):
         import logging
