@@ -57,7 +57,7 @@ class SearchTicket(object):
 
         data = self.data_converter(results,  json.get("data").get("map"))
         for item in data:
-            print item.__dict__
+            print item
 
 
     def data_converter(self, result, data_map):
@@ -110,10 +110,10 @@ class SearchTicket(object):
             cr.from_station_name = data_map[cn[6]]  # 始发站火车站名
             cr.to_station_name = data_map[cn[7]]   # 终点站火车站名
 
-            ct.queryLeftNewDTO = cr
+            ct.queryLeftNewDTO = cr.__dict__
             co += 1
 
-            cp.append(ct)
+            cp.append(ct.__dict__)
 
         return cp
 
