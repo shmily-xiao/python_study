@@ -10,6 +10,7 @@
 """
 
 import requests
+import time
 
 from location import create_location_name_map, get_location_code
 
@@ -42,27 +43,22 @@ SEAT_TYPE_MAP = {
 
 class SearchTicket(object):
     def do(self):
-        data_time = "2017-10-17"
+        date_time = "2017-10-19"
 
-        params = {"leftTicketDTO.train_date": data_time,
+        params = {"leftTicketDTO.train_date": date_time,
                   "leftTicketDTO.from_station": "BJP",
                   "leftTicketDTO.to_station": "CUW",
                   "purpose_codes": "ADULT"}
 
         ticket_list = self.get_ticket(params)
 
-        reslut = []
+        result = []
         for ticket in ticket_list:
-            reslut.append(self.get_all_location_stock(ticket, data_time))
+            result.append(self.get_all_location_stock(ticket, date_time))
 
+        return result
 
-
-
-        pass
-
-
-
-    def get_all_location_stock(self, ticket, data_time):
+    def get_all_location_stock(self, ticket, date_time):
         """
         针对跨天的列车区间查询日期说明：
             有的列车是需要跨天的，但是在分段查询的时候没有对查询的时间进行加一天操作，原因是因为，
@@ -81,11 +77,10 @@ class SearchTicket(object):
         queryLeftNewDTO = ticket.get("queryLeftNewDTO")
         train_no = queryLeftNewDTO.get("train_no")
 
-
         params = {"train_no": train_no,
-                  "from_station_telecode": queryLeftNewDTO("from_station_telecode"),
+                  "from_station_telecode": queryLeftNewDTO.get("from_station_telecode"),
                   "to_station_telecode": queryLeftNewDTO.get("to_station_telecode"),
-                  "depart_date": data_time}
+                  "depart_date": date_time}
 
         locations = self.get_locations(params)
 
@@ -94,31 +89,29 @@ class SearchTicket(object):
         for index, location in enumerate(locations):
             if not location.get("isEnabled"):
                 continue
-            if index == len(locations)-1:
+            if index == len(locations) - 1:
                 continue
             from_location = location.get("station_name")
 
-            to_location = locations[index+1].get("station_name")
+            to_location = locations[index + 1].get("station_name")
 
-            params = {"leftTicketDTO.train_date":data_time,
-                      "leftTicketDTO.from_station":  get_location_code(from_location),
-                      "leftTicketDTO.to_station": to_location,
+            params = {"leftTicketDTO.train_date": date_time,
+                      "leftTicketDTO.from_station": get_location_code(from_location),
+                      "leftTicketDTO.to_station": get_location_code(to_location),
                       "purpose_codes": "ADULT"}
 
             ticket_list = self.get_ticket(params)
 
             for ticket in ticket_list:
                 if ticket.get("queryLeftNewDTO").get("train_no") == train_no:
-                    temp = {"from_station":from_location, "to_station":to_location, "letf_ticket":self.count_left_ticket(ticket)}
+                    temp = {"from_station": from_location, "to_station": to_location,
+                            "left_ticket": self.count_left_ticket(ticket)}
                     result_location.append(temp)
                     break
 
-        data = {"train_no":train_no,"data":result_location}
+        data = {"train_no": train_no, "real_name": ticket.get("queryLeftNewDTO").get("station_train_code"), "data": result_location}
 
         return data
-
-
-
 
     def count_left_ticket(self, ticket):
 
@@ -139,15 +132,15 @@ class SearchTicket(object):
         """
         stockInfo = StockInfo()
 
-        for item in ticket.keys():
+        for item in ticket.get("queryLeftNewDTO").keys():
             if "num" in item:
-                value = ticket.get(item)
+                value = ticket.get("queryLeftNewDTO").get(item)
                 # 无
-                if value == "--" and value == "\u65e0":
+                if value == "--" or value == "\u65e0":
                     continue
                 # 有   \u6709
                 stockInfo.hasSeat = True
-                stockInfo.__setattr__(item, value)
+                stockInfo.__setattr__(SEAT_TYPE_MAP.get(item.split("_").pop(0)), value)
 
         return stockInfo.__dict__
 
@@ -178,60 +171,61 @@ class SearchTicket(object):
 
         url = host + query
 
-        response = requests.get(url, verify=False)
+        time.sleep(1)
+        response = requests.get(url, verify=False).json()
+
         # return response
-        response = {"validateMessagesShowId": "_validatorMessage", "status": True, "httpstatus": 200, "data": {"data": [
-            {"start_station_name": "北京西", "arrive_time": "----", "station_train_code": "K817", "station_name": "北京西",
-             "train_class_name": "快速", "service_type": "1", "start_time": "08:00", "stopover_time": "----",
-             "end_station_name": "成都", "station_no": "01", "isEnabled": True},
-            {"arrive_time": "09:30", "station_name": "保定", "start_time": "09:33", "stopover_time": "3分钟",
-             "station_no": "02", "isEnabled": True},
-            {"arrive_time": "10:10", "station_name": "定州", "start_time": "10:13", "stopover_time": "3分钟",
-             "station_no": "03", "isEnabled": True},
-            {"arrive_time": "11:05", "station_name": "石家庄", "start_time": "11:22", "stopover_time": "17分钟",
-             "station_no": "04", "isEnabled": True},
-            {"arrive_time": "12:25", "station_name": "邢台", "start_time": "12:27", "stopover_time": "2分钟",
-             "station_no": "05", "isEnabled": True},
-            {"arrive_time": "13:25", "station_name": "邯郸", "start_time": "13:29", "stopover_time": "4分钟",
-             "station_no": "06", "isEnabled": True},
-            {"arrive_time": "14:23", "station_name": "安阳", "start_time": "14:32", "stopover_time": "9分钟",
-             "station_no": "07", "isEnabled": True},
-            {"arrive_time": "15:01", "station_name": "鹤壁", "start_time": "15:33", "stopover_time": "32分钟",
-             "station_no": "08", "isEnabled": True},
-            {"arrive_time": "16:12", "station_name": "新乡", "start_time": "16:15", "stopover_time": "3分钟",
-             "station_no": "09", "isEnabled": True},
-            {"arrive_time": "17:16", "station_name": "郑州", "start_time": "17:32", "stopover_time": "16分钟",
-             "station_no": "10", "isEnabled": True},
-            {"arrive_time": "19:00", "station_name": "洛阳东", "start_time": "19:04", "stopover_time": "4分钟",
-             "station_no": "11", "isEnabled": True},
-            {"arrive_time": "19:12", "station_name": "洛阳", "start_time": "19:15", "stopover_time": "3分钟",
-             "station_no": "12", "isEnabled": True},
-            {"arrive_time": "21:01", "station_name": "三门峡", "start_time": "21:04", "stopover_time": "3分钟",
-             "station_no": "13", "isEnabled": True},
-            {"arrive_time": "03:52", "station_name": "安康", "start_time": "04:03", "stopover_time": "11分钟",
-             "station_no": "14", "isEnabled": True},
-            {"arrive_time": "06:47", "station_name": "宣汉", "start_time": "06:49", "stopover_time": "2分钟",
-             "station_no": "15", "isEnabled": True},
-            {"arrive_time": "07:36", "station_name": "达州", "start_time": "07:47", "stopover_time": "11分钟",
-             "station_no": "16", "isEnabled": True},
-            {"arrive_time": "08:51", "station_name": "营山", "start_time": "08:54", "stopover_time": "3分钟",
-             "station_no": "17", "isEnabled": True},
-            {"arrive_time": "09:07", "station_name": "蓬安", "start_time": "09:10", "stopover_time": "3分钟",
-             "station_no": "18", "isEnabled": True},
-            {"arrive_time": "09:37", "station_name": "南充", "start_time": "09:41", "stopover_time": "4分钟",
-             "station_no": "19", "isEnabled": True},
-            {"arrive_time": "10:22", "station_name": "遂宁", "start_time": "10:28", "stopover_time": "6分钟",
-             "station_no": "20", "isEnabled": True},
-            {"arrive_time": "10:49", "station_name": "大英东", "start_time": "11:25", "stopover_time": "36分钟",
-             "station_no": "21", "isEnabled": True},
-            {"arrive_time": "12:41", "station_name": "成都", "start_time": "12:41", "stopover_time": "----",
-             "station_no": "22", "isEnabled": True}]}, "messages": [], "validateMessages": {}}
+        # response = {"validateMessagesShowId": "_validatorMessage", "status": True, "httpstatus": 200, "data": {"data": [
+        #     {"start_station_name": "北京西", "arrive_time": "----", "station_train_code": "K817", "station_name": "北京西",
+        #      "train_class_name": "快速", "service_type": "1", "start_time": "08:00", "stopover_time": "----",
+        #      "end_station_name": "成都", "station_no": "01", "isEnabled": True},
+        #     {"arrive_time": "09:30", "station_name": "保定", "start_time": "09:33", "stopover_time": "3分钟",
+        #      "station_no": "02", "isEnabled": True},
+        #     {"arrive_time": "10:10", "station_name": "定州", "start_time": "10:13", "stopover_time": "3分钟",
+        #      "station_no": "03", "isEnabled": True},
+        #     {"arrive_time": "11:05", "station_name": "石家庄", "start_time": "11:22", "stopover_time": "17分钟",
+        #      "station_no": "04", "isEnabled": True},
+        #     {"arrive_time": "12:25", "station_name": "邢台", "start_time": "12:27", "stopover_time": "2分钟",
+        #      "station_no": "05", "isEnabled": True},
+        #     {"arrive_time": "13:25", "station_name": "邯郸", "start_time": "13:29", "stopover_time": "4分钟",
+        #      "station_no": "06", "isEnabled": True},
+        #     {"arrive_time": "14:23", "station_name": "安阳", "start_time": "14:32", "stopover_time": "9分钟",
+        #      "station_no": "07", "isEnabled": True},
+        #     {"arrive_time": "15:01", "station_name": "鹤壁", "start_time": "15:33", "stopover_time": "32分钟",
+        #      "station_no": "08", "isEnabled": True},
+        #     {"arrive_time": "16:12", "station_name": "新乡", "start_time": "16:15", "stopover_time": "3分钟",
+        #      "station_no": "09", "isEnabled": True},
+        #     {"arrive_time": "17:16", "station_name": "郑州", "start_time": "17:32", "stopover_time": "16分钟",
+        #      "station_no": "10", "isEnabled": True},
+        #     {"arrive_time": "19:00", "station_name": "洛阳东", "start_time": "19:04", "stopover_time": "4分钟",
+        #      "station_no": "11", "isEnabled": True},
+        #     {"arrive_time": "19:12", "station_name": "洛阳", "start_time": "19:15", "stopover_time": "3分钟",
+        #      "station_no": "12", "isEnabled": True},
+        #     {"arrive_time": "21:01", "station_name": "三门峡", "start_time": "21:04", "stopover_time": "3分钟",
+        #      "station_no": "13", "isEnabled": True},
+        #     {"arrive_time": "03:52", "station_name": "安康", "start_time": "04:03", "stopover_time": "11分钟",
+        #      "station_no": "14", "isEnabled": True},
+        #     {"arrive_time": "06:47", "station_name": "宣汉", "start_time": "06:49", "stopover_time": "2分钟",
+        #      "station_no": "15", "isEnabled": True},
+        #     {"arrive_time": "07:36", "station_name": "达州", "start_time": "07:47", "stopover_time": "11分钟",
+        #      "station_no": "16", "isEnabled": True},
+        #     {"arrive_time": "08:51", "station_name": "营山", "start_time": "08:54", "stopover_time": "3分钟",
+        #      "station_no": "17", "isEnabled": True},
+        #     {"arrive_time": "09:07", "station_name": "蓬安", "start_time": "09:10", "stopover_time": "3分钟",
+        #      "station_no": "18", "isEnabled": True},
+        #     {"arrive_time": "09:37", "station_name": "南充", "start_time": "09:41", "stopover_time": "4分钟",
+        #      "station_no": "19", "isEnabled": True},
+        #     {"arrive_time": "10:22", "station_name": "遂宁", "start_time": "10:28", "stopover_time": "6分钟",
+        #      "station_no": "20", "isEnabled": True},
+        #     {"arrive_time": "10:49", "station_name": "大英东", "start_time": "11:25", "stopover_time": "36分钟",
+        #      "station_no": "21", "isEnabled": True},
+        #     {"arrive_time": "12:41", "station_name": "成都", "start_time": "12:41", "stopover_time": "----",
+        #      "station_no": "22", "isEnabled": True}]}, "messages": [], "validateMessages": {}}
 
         if not response.get("status"):
             return []
 
         return response.get("data").get("data")
-
 
     def get_ticket(self, params):
         # self.request_debug()
@@ -247,22 +241,26 @@ class SearchTicket(object):
         url = url + query
         print url
 
-        response = requests.get(url, verify=False)
+        time.sleep(1)
+        response = requests.get(url, verify=False).json()
 
-        response = {u'status': True, u'validateMessagesShowId': u'_validatorMessage', u'messages': [], u'httpstatus': 200,
-                u'validateMessages': {}, u'data': {
-                u'map': {u'CUW': u'\u91cd\u5e86\u5317', u'BXP': u'\u5317\u4eac\u897f', u'CQW': u'\u91cd\u5e86',
-                         u'BPW': u'\u5317\u789a'},
-                u'flag': u'1',
-                u'result': [
-                    u'1kgBUWH%2Bi2I8%2BEvsVqbrzOXj16fzyuXeDnyF372TEDcDMTeMb62uIOUnxzqB18ff%2FMaSdUZxfnh%2B%0AWaHZEmIa16aAtcn4RTnfgYlw9q7RQ3xDxzUQ%2FXZVzfoMULfvs0NJQYZC84N%2Bfi520Jj68ncoZEk4%0AAbckv4bZUTpf8kUHk%2FA7wnTN9ws04amY4ClhnXhtsX4fwi5yI%2BIg9sYCwIKz1Pp6JwhbtysydRYy%0A3kZchvks2mZvL88XGiLICbQ%3D|\u9884\u8ba2|240000K8190J|K819|BXP|CUW|BXP|CUW|07:12|09:17|26:05|Y|DG6WFnOgc6hiK2Xbeqlb3dmBjWR6iR1LeHugaRw%2FuB2izVMg%2FpzeOEswRfs%3D|20171013|3|PB|01|20|0|0||||6|||\u6709||\u6709|\u65e0|||||10401030|1413',
-                    u'0cxhRrFO6oIwW%2BJbzd8Zohxi1VeDJff3CEjNZdtwQqaf16Jz0AT1Ne9Uuiy%2FxvVhQwPTPWQ3WSNm%0ALm%2B31lgirhxjBNa6YnzUdXWmSOL3S62u7%2Fs42mvjbG9igt1wBiCqA5dH41r8eepOER%2B%2FNwEO8%2Fex%0Az3dD7TmoydU5jvI2kQkwRE%2BtdTChL%2B35R2toEK%2FpOWLl1xo8qqr33mq5Ohb6p0Ob9j5QP%2ByiBE87%0AaXUpDs4%3D|\u9884\u8ba2|240000G30908|G309|BXP|ICW|BXP|CUW|08:23|20:35|12:12|Y|amm8oFXJSpKNSZB2K7eXMHTujNZhliMcdySqWnduVnfmmmXt|20171013|3|P4|01|18|0|0|||||||||||\u6709|\u65e0|\u65e0||O0M090|OM9',
-                    u'UmfOL3EzuIInLDzF9UjXuAJBDGmr5%2FCEAEqnLDhm%2FxFHSTUjx95NR%2F9hDuRy4SMZjorWoLWGFIon%0A5HBe6riNtSuTMleRiFNTVp%2F7eNKEIDJczfATDPOkj%2BcSbIMYaWLAoQ8i%2BdqZShOlUvCNJp0cB7%2Fy%0AnVInbHkwEpGy5ddrb8BfStH9S4oVvHoN7AwUQu43SRYo17cs2Ra1C5mGDkAc7sD60sSwrQnt3Jdj%0Act8s6L2IZcyViA3ISA%3D%3D|\u9884\u8ba2|240000K5890X|K589|BXP|CQW|BXP|BPW|10:30|14:40|28:10|Y|2eMOC2QLeXPZW77kvgNkjzUn0BNJpO27eakGKkiJBN%2B5Sud9NnIxU963cqY%3D|20171013|3|PB|01|22|0|0||||18|||\u6709||\u6709|\u6709|||||10403010|1431',
-                    u'%2FKxiBeS%2FPUYNCVAdu3VgFOL%2FM2oqMWx8KDDvfmlKr3lMsPNAye0oh8Lhyz1abYT0cQ8KnygBDzwB%0AYVS4HbR0vFl7XALCwXP095R4VBMDVsISFBZgnf6j5xnZIBsq9MCVyzY9dCOqmTSrcfO9j34yYokx%0A5CkLugwvXZUS7MiUwhsi9FOmjLjvbq%2FZyATmkz7ymNJv5pxRM1yW6njKD5AIHEuQ2iNSgnwkGxU%2B%0ARCRjS9in6CTRppVa3gnjgao%3D|\u9884\u8ba2|2400000Z490E|Z49|BXP|CDW|BXP|CUW|11:28|05:32|18:04|Y|nDV7HvvMwoIK38fvo4%2FejxTK9l%2Fo5Yu4YItSBT92KozFwHLdO9K6KyDrems%3D|20171013|3|P4|01|08|0|0||||3|||\u6709||\u65e0|\u65e0|||||10401030|1413',
-                    u'7tDh4evKSl2o%2B4kSQ4et6FIS1zsYodFXu9jiB23%2FOAEllOECdxC4pVj2UbVp3qhz4Z8444go9Pjc%0AiOIDsWf3yEdDO%2BSmtKM0N99AhL0kGI%2BHAm4XyChxopEiIyig%2FSNMTBQ4TkDztXRRNxF0IgdLUz%2B3%0AnOrlR20hYbWwawvSdiDs72xHk%2Fg3%2BN7aO7TYRstCF3p%2FoT6ErtrCNUNTyg9pKQBIVAyuchqGTFbv%0A%2FXyV87OQzZ%2BJXanvKQ%3D%3D|\u9884\u8ba2|24000000T90U|T9|BXP|CUW|BXP|CUW|15:05|16:19|25:14|Y|qI%2BVhK2b4GdmiwhujhYWOth2cuJ9Gg6sLlOFdhLXmaSlogVFLXk0UvvPk2I%3D|20171013|3|P4|01|14|0|0||||1|||\u6709||1|\u65e0|||||10401030|1413',
-                    u'1O6KFymOthN%2BMmkGxaXmdiFcW5ASoMHYUGpxiSCcqPxOz6bBkgueMyQYUh9Tsn3DVFR3Lc4ci2rn%0A2LyT4CCoT7LyKAB1icSFg4GT8p3uqK93ZJsOQ%2Bnp%2FQi1Sdej14EC9UqDPc1oQasG5fKuprHSkmLW%0Accr990FETNwuj3STHuVyTP7cauBU1bIBKP4ZF7dQCP2d%2Fz4yMk72jTofFF%2FfrL7iKBvG2BG5nM8y%0ArAV2TVM1sHodp1sVwA%3D%3D|\u9884\u8ba2|24000000Z30I|Z3|BXP|CUW|BXP|CUW|17:48|11:56|18:08|Y|1959222raWx5k4ziPuWrEWy7UuNuhSbypS%2BPTeHplwOn5q7mLWEU5FTlC5g%3D|20171013|3|P3|01|07|0|0||||\u65e0|||\u6709||\u65e0|\u6709|||||10401030|1413',
-                    u'WISA%2FyRc1SI15PshltIlkz4IR680YpWSep7HtUT6pEJ8Lep6Nn2DG6CdwqMFJTIPXEMTm%2Fy3eD5e%0AnLfYl%2FSkwoGg%2FtBb6WfLYACp7wdMilqoIYkgp6xNIoYlGw353cvOjIQLHYF%2FmX9IcIBKov721jNG%0AJCB1GrVT8CVbfCI4QBTroI1EuVTrLtGFRZLQWrVSSUDHJzGkpIV3cydt8dhR2BwjuBLoJpX%2FD4GB%0ALGoN3UIIzWnHbVJ4PbyHgT4%3D|\u9884\u8ba2|2400000Z9502|Z95|BXP|CUW|BXP|CUW|18:06|16:47|22:41|Y|AHjQM%2FlOfneMK3ZbUY62pJb2NBNMUuko8LRrWARfRFiL5gwBHdbuvjzkwEk%3D|20171013|3|P4|01|11|0|0||||1|||\u6709||\u65e0|\u6709|||||10401030|1413',
-                    u'tY%2FOKrvYPQLA%2B4mytupT5vhop60AvzTKCoBTOnkjL%2BgDbIkx8tvby7Ybnil0r5Tp8L4MLnb8UZAK%0Aht3pUGFAr%2FheeFOSn6zn9Ex71AsehWXO5CJIwvSk%2FlzLzEYvO063LDhXBJRmpjlm05DiSH3AVN5X%0Ac%2FFkCzPYnfMDVyiwcEGAYo6XQX8hny1rwpTxkTHygoUdl7iq8O20W%2FvG5G2QJo8fFxgtkubTHFxG%0AUTEaZNXOw8sH%2BfeT8Q%3D%3D|\u9884\u8ba2|240000K5072A|K507|BXP|GIW|BXP|CQW|21:23|02:17|28:54|Y|WoM60rm2DR18qaw0BnAyHdWnnrAeLdyE4xAGasQie6PYX%2Bv0yen8EXCbbyk%3D|20171013|3|PB|01|25|0|0||||\u65e0|||\u6709||\u65e0|\u6709|||||10401030|1413']}}
+
+
+        # response = {u'status': True, u'validateMessagesShowId': u'_validatorMessage', u'messages': [],
+        #             u'httpstatus': 200,
+        #             u'validateMessages': {}, u'data': {
+        #         u'map': {u'CUW': u'\u91cd\u5e86\u5317', u'BXP': u'\u5317\u4eac\u897f', u'CQW': u'\u91cd\u5e86',
+        #                  u'BPW': u'\u5317\u789a'},
+        #         u'flag': u'1',
+        #         u'result': [
+        #             u'1kgBUWH%2Bi2I8%2BEvsVqbrzOXj16fzyuXeDnyF372TEDcDMTeMb62uIOUnxzqB18ff%2FMaSdUZxfnh%2B%0AWaHZEmIa16aAtcn4RTnfgYlw9q7RQ3xDxzUQ%2FXZVzfoMULfvs0NJQYZC84N%2Bfi520Jj68ncoZEk4%0AAbckv4bZUTpf8kUHk%2FA7wnTN9ws04amY4ClhnXhtsX4fwi5yI%2BIg9sYCwIKz1Pp6JwhbtysydRYy%0A3kZchvks2mZvL88XGiLICbQ%3D|\u9884\u8ba2|240000K8190J|K819|BXP|CUW|BXP|CUW|07:12|09:17|26:05|Y|DG6WFnOgc6hiK2Xbeqlb3dmBjWR6iR1LeHugaRw%2FuB2izVMg%2FpzeOEswRfs%3D|20171013|3|PB|01|20|0|0||||6|||\u6709||\u6709|\u65e0|||||10401030|1413',
+        #             u'0cxhRrFO6oIwW%2BJbzd8Zohxi1VeDJff3CEjNZdtwQqaf16Jz0AT1Ne9Uuiy%2FxvVhQwPTPWQ3WSNm%0ALm%2B31lgirhxjBNa6YnzUdXWmSOL3S62u7%2Fs42mvjbG9igt1wBiCqA5dH41r8eepOER%2B%2FNwEO8%2Fex%0Az3dD7TmoydU5jvI2kQkwRE%2BtdTChL%2B35R2toEK%2FpOWLl1xo8qqr33mq5Ohb6p0Ob9j5QP%2ByiBE87%0AaXUpDs4%3D|\u9884\u8ba2|240000G30908|G309|BXP|ICW|BXP|CUW|08:23|20:35|12:12|Y|amm8oFXJSpKNSZB2K7eXMHTujNZhliMcdySqWnduVnfmmmXt|20171013|3|P4|01|18|0|0|||||||||||\u6709|\u65e0|\u65e0||O0M090|OM9',
+        #             u'UmfOL3EzuIInLDzF9UjXuAJBDGmr5%2FCEAEqnLDhm%2FxFHSTUjx95NR%2F9hDuRy4SMZjorWoLWGFIon%0A5HBe6riNtSuTMleRiFNTVp%2F7eNKEIDJczfATDPOkj%2BcSbIMYaWLAoQ8i%2BdqZShOlUvCNJp0cB7%2Fy%0AnVInbHkwEpGy5ddrb8BfStH9S4oVvHoN7AwUQu43SRYo17cs2Ra1C5mGDkAc7sD60sSwrQnt3Jdj%0Act8s6L2IZcyViA3ISA%3D%3D|\u9884\u8ba2|240000K5890X|K589|BXP|CQW|BXP|BPW|10:30|14:40|28:10|Y|2eMOC2QLeXPZW77kvgNkjzUn0BNJpO27eakGKkiJBN%2B5Sud9NnIxU963cqY%3D|20171013|3|PB|01|22|0|0||||18|||\u6709||\u6709|\u6709|||||10403010|1431',
+        #             u'%2FKxiBeS%2FPUYNCVAdu3VgFOL%2FM2oqMWx8KDDvfmlKr3lMsPNAye0oh8Lhyz1abYT0cQ8KnygBDzwB%0AYVS4HbR0vFl7XALCwXP095R4VBMDVsISFBZgnf6j5xnZIBsq9MCVyzY9dCOqmTSrcfO9j34yYokx%0A5CkLugwvXZUS7MiUwhsi9FOmjLjvbq%2FZyATmkz7ymNJv5pxRM1yW6njKD5AIHEuQ2iNSgnwkGxU%2B%0ARCRjS9in6CTRppVa3gnjgao%3D|\u9884\u8ba2|2400000Z490E|Z49|BXP|CDW|BXP|CUW|11:28|05:32|18:04|Y|nDV7HvvMwoIK38fvo4%2FejxTK9l%2Fo5Yu4YItSBT92KozFwHLdO9K6KyDrems%3D|20171013|3|P4|01|08|0|0||||3|||\u6709||\u65e0|\u65e0|||||10401030|1413',
+        #             u'7tDh4evKSl2o%2B4kSQ4et6FIS1zsYodFXu9jiB23%2FOAEllOECdxC4pVj2UbVp3qhz4Z8444go9Pjc%0AiOIDsWf3yEdDO%2BSmtKM0N99AhL0kGI%2BHAm4XyChxopEiIyig%2FSNMTBQ4TkDztXRRNxF0IgdLUz%2B3%0AnOrlR20hYbWwawvSdiDs72xHk%2Fg3%2BN7aO7TYRstCF3p%2FoT6ErtrCNUNTyg9pKQBIVAyuchqGTFbv%0A%2FXyV87OQzZ%2BJXanvKQ%3D%3D|\u9884\u8ba2|24000000T90U|T9|BXP|CUW|BXP|CUW|15:05|16:19|25:14|Y|qI%2BVhK2b4GdmiwhujhYWOth2cuJ9Gg6sLlOFdhLXmaSlogVFLXk0UvvPk2I%3D|20171013|3|P4|01|14|0|0||||1|||\u6709||1|\u65e0|||||10401030|1413',
+        #             u'1O6KFymOthN%2BMmkGxaXmdiFcW5ASoMHYUGpxiSCcqPxOz6bBkgueMyQYUh9Tsn3DVFR3Lc4ci2rn%0A2LyT4CCoT7LyKAB1icSFg4GT8p3uqK93ZJsOQ%2Bnp%2FQi1Sdej14EC9UqDPc1oQasG5fKuprHSkmLW%0Accr990FETNwuj3STHuVyTP7cauBU1bIBKP4ZF7dQCP2d%2Fz4yMk72jTofFF%2FfrL7iKBvG2BG5nM8y%0ArAV2TVM1sHodp1sVwA%3D%3D|\u9884\u8ba2|24000000Z30I|Z3|BXP|CUW|BXP|CUW|17:48|11:56|18:08|Y|1959222raWx5k4ziPuWrEWy7UuNuhSbypS%2BPTeHplwOn5q7mLWEU5FTlC5g%3D|20171013|3|P3|01|07|0|0||||\u65e0|||\u6709||\u65e0|\u6709|||||10401030|1413',
+        #             u'WISA%2FyRc1SI15PshltIlkz4IR680YpWSep7HtUT6pEJ8Lep6Nn2DG6CdwqMFJTIPXEMTm%2Fy3eD5e%0AnLfYl%2FSkwoGg%2FtBb6WfLYACp7wdMilqoIYkgp6xNIoYlGw353cvOjIQLHYF%2FmX9IcIBKov721jNG%0AJCB1GrVT8CVbfCI4QBTroI1EuVTrLtGFRZLQWrVSSUDHJzGkpIV3cydt8dhR2BwjuBLoJpX%2FD4GB%0ALGoN3UIIzWnHbVJ4PbyHgT4%3D|\u9884\u8ba2|2400000Z9502|Z95|BXP|CUW|BXP|CUW|18:06|16:47|22:41|Y|AHjQM%2FlOfneMK3ZbUY62pJb2NBNMUuko8LRrWARfRFiL5gwBHdbuvjzkwEk%3D|20171013|3|P4|01|11|0|0||||1|||\u6709||\u65e0|\u6709|||||10401030|1413',
+        #             u'tY%2FOKrvYPQLA%2B4mytupT5vhop60AvzTKCoBTOnkjL%2BgDbIkx8tvby7Ybnil0r5Tp8L4MLnb8UZAK%0Aht3pUGFAr%2FheeFOSn6zn9Ex71AsehWXO5CJIwvSk%2FlzLzEYvO063LDhXBJRmpjlm05DiSH3AVN5X%0Ac%2FFkCzPYnfMDVyiwcEGAYo6XQX8hny1rwpTxkTHygoUdl7iq8O20W%2FvG5G2QJo8fFxgtkubTHFxG%0AUTEaZNXOw8sH%2BfeT8Q%3D%3D|\u9884\u8ba2|240000K5072A|K507|BXP|GIW|BXP|CQW|21:23|02:17|28:54|Y|WoM60rm2DR18qaw0BnAyHdWnnrAeLdyE4xAGasQie6PYX%2Bv0yen8EXCbbyk%3D|20171013|3|PB|01|25|0|0||||\u65e0|||\u6709||\u65e0|\u6709|||||10401030|1413']}}
         # print response.json()
 
         # results = json.get("data").get("result")
@@ -273,7 +271,6 @@ class SearchTicket(object):
 
         ticket_list = self.data_converter(response.get("data").get("result"), response.get("data").get("map"))
         return ticket_list
-
 
     def data_converter(self, result, data_map):
 
@@ -293,7 +290,7 @@ class SearchTicket(object):
             cr.start_station_telecode = cn[4]  # 始发站火车站的电话代码 ? 还是远程代码 ?
             cr.end_station_telecode = cn[5]
             cr.from_station_telecode = cn[6]  # 开始车站编号
-            cr.to_station_telecode = cn[7]    # 到达站编号
+            cr.to_station_telecode = cn[7]  # 到达站编号
             cr.start_time = cn[8]  # 开车时间
             cr.arrive_time = cn[9]  # 到达时间
             cr.lishi = cn[10]  # 历时 就是要经过多少时间
@@ -361,9 +358,13 @@ if __name__ == '__main__':
     # ctxt2.eval("get_ticket()")
     t = SearchTicket()
 
-    params = {"leftTicketDTO.train_date": "2017-10-13",
-              "leftTicketDTO.from_station": "BJP",
-              "leftTicketDTO.to_station": "CUW",
-              "purpose_codes": "ADULT"}
+    # params = {"leftTicketDTO.train_date": "2017-10-13",
+    #           "leftTicketDTO.from_station": "BJP",
+    #           "leftTicketDTO.to_station": "CUW",
+    #           "purpose_codes": "ADULT"}
+    #
+    # t.get_ticket(params)
 
-    t.get_ticket(params)
+    data = t.do()
+    import json
+    print json.dumps(data)

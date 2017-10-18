@@ -25,5 +25,6 @@ if __name__ == '__main__':
 
     locations = create_location_name_map()
 
-    print locations
+    print locations.get(u"北京西")
+    # print locations
     
