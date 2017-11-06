@@ -49,10 +49,10 @@ def get_id(db):
 def init_data(client):
     """ 构造数据 """
 
-    db1 = client["test1"]
-    db2 = client["test2"]
+    db1 = client["mongo_test1"]
+    db2 = client["mongo_test2"]
 
-    for i in xrange(40000):
+    for i in xrange(100000):
         key1 = get_id(db1)
         parent_id = None
         if random.random() > 0.2:
@@ -80,13 +80,13 @@ def init_data(client):
                 children.append(key2)
                 db2.mongo_test.save(parent)
 
-        if i % 2000 == 0:
-            print "{0}0 % ".format(i // 2000)
+        if i % 10000 == 0:
+            print "{0}0 % ".format(i // 10000)
 
 
 def test_db(client):
     """测试花费的时间"""
-    db1 = client["test1"]
+    db1 = client["mongo_test1"]
     import time
 
     start = time.time()
@@ -99,17 +99,18 @@ def test_db(client):
 
     test_db1_time = end - start
 
-    db2 = client["test2"]
+    db2 = client["mongo_test2"]
     start = time.time()
     parent = db2.mongo_test.find({"parent": None})
     for item in parent:
-        children = db2.mongo_test.find({"$in": {"_id": item.get("children_id")}})
+        if item.get("children_id"):
+            children = db2.mongo_test.find({"$in": {"_id": item.get("children_id")}})
 
     end = time.time()
 
     test_db2_time = end - start
 
-    db3 = client["test6"]
+    db3 = client["mongo_test3"]
     start = time.time()
     parent = db3.mongo_test.find({"parent": None})
 
@@ -129,7 +130,7 @@ def test_db(client):
 if __name__ == '__main__':
     from pymongo import MongoClient
 
-    client = MongoClient(host='192.168.0.7', port=27017)
+    client = MongoClient(host='127.0.0.1', port=27017)
 
     # init_data(client)
     test_db(client)
