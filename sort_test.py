@@ -6,3 +6,21 @@ if __name__ == '__main__':
     ss = sorted(ss)
 
     print ss
+
+    dd = {"list":[
+        {"names":[
+
+        ]}
+    ]}
+
+    print dd
+
+    for item in dd.get("list",[]):
+        lists = item.get("names",[])
+        lists.append({"ss":"adad"})
+        print lists
+
+
+    print dd
+
+
