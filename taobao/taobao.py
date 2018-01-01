@@ -163,7 +163,7 @@ class Taobao(object):
 
         pass
 
-    def goods_2_db(self, goods_and_coupon):
+    def goods_2_db(self, gscn):
         """
         更新goods 和 goodsCoupon
         :return:
@@ -171,8 +171,8 @@ class Taobao(object):
 
 
         # SQL 插入语句
-        sql_coupon = """INSERT INTO goods_coupon()
-                 VALUES ('Mac', 'Mohan', 20, 'M', 2000)"""
+        sql_coupon = """INSERT INTO goods_coupon(create_time, update_time, available_time, expiration_time, coupon_price, name, online, url)
+                 VALUES ({0},{1},{2},{3},{4},{5},{6},{7})""".format(gscn.createTime, gscn.updateTime, gscn.couponEffectiveStartTime, gscn.couponEffectiveEndTime, int(float(gscn.couponAmount)), gscn.couponInfo, True, gscn.couponUrl)
         try:
             # 执行sql语句
             self.cursor.execute(sql_coupon)

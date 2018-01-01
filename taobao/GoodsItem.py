@@ -79,18 +79,19 @@ class GoodsItem(object):
         #todo
         self.description = "" #暂时没有得自己后台运营写
         self.shipFree = False # 默认不包邮，现在拿不到数据
-
+        self.goodsUrl = ""
 
 
 
         # 优惠券
         self.couponEffectiveStartTime = ob.get("couponEffectiveStartTime") #优惠券的开始时间
-        self.couponEffectiveStartTime = ob.get("couponEffectiveEndTime") # 优惠券的结束使用时间
+        self.couponEffectiveEndTime = ob.get("couponEffectiveEndTime") # 优惠券的结束使用时间
         self.couponTotalCount = ob.get("couponTotalCount") # 总共有多少优惠卷
         self.couponLeftCount = ob.get("couponLeftCount") # 剩余多少优惠券
         self.couponAmount = ob.get("couponAmount") # 优惠的金额
         self.couponInfo = ob.get("couponInfo") # 优惠券的描述
-
+        # todo
+        self.couponUrl = ""
 
 
 
