@@ -55,7 +55,7 @@ class GoodsItem(object):
                 "userTypeName": null
     """
 
-    def __init__(self, detail_img_urls, type_id, ob):
+    def __init__(self, share_url_data, detail_img_urls, type_id, ob):
 
 
         # 类似与外键 关系
@@ -69,17 +69,17 @@ class GoodsItem(object):
         self.brokerage = int(float(ob.get("tkCommFee"))*100) # 最后的得到的佣金
         self.referPrice = int(float(ob.get("zkPrice"))*100) # 商品的价格，原价，不使用优惠卷的价格
         self.source = "TMALL" if ob.get("userType",0) else "TAOBAO" # 标示是天猫还是普通的  1 是天猫  0 是淘宝
-        self.online = True
-        self.disable = False
+        self.online = ob.get("status") == 1
+        self.disable = ob.get("status") != 1
         self.createTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.updateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.type_id = type_id  # 系统中的类型的id
         self.detailImgs = detail_img_urls # 详情中的图片链接
+        self.goodsUrl = share_url_data.get("shortLinkUrl") # 我分享产品的url 是一个短链接只有300天的有效期
 
         #todo
         self.description = "" #暂时没有得自己后台运营写
         self.shipFree = False # 默认不包邮，现在拿不到数据
-        self.goodsUrl = ""
 
 
 
@@ -90,8 +90,7 @@ class GoodsItem(object):
         self.couponLeftCount = ob.get("couponLeftCount") # 剩余多少优惠券
         self.couponAmount = ob.get("couponAmount") # 优惠的金额
         self.couponInfo = ob.get("couponInfo") # 优惠券的描述
-        # todo
-        self.couponUrl = ""
+        self.couponUrl = share_url_data.get("couponLink")
 
 
 
