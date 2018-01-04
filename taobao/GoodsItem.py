@@ -71,7 +71,9 @@ class GoodsItem(object):
         self.source = "TMALL" if ob.get("userType",0) else "TAOBAO" # 标示是天猫还是普通的  1 是天猫  0 是淘宝
         self.online = ob.get("status") == 1
         self.disable = ob.get("status") != 1
+        # self.createTime = datetime.datetime.now()
         self.createTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # self.updateTime = datetime.datetime.now()
         self.updateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.type_id = type_id  # 系统中的类型的id
         self.detailImgs = detail_img_urls # 详情中的图片链接

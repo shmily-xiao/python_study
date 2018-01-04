@@ -24,7 +24,7 @@ class Taobao(object):
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Content-type': 'application/json',
         'Accept': 'application/json',
-        'Cookie': 'alimamapw=R0RydRZ1Bx0mJkR3B0R1BhAidlADBQc4Aw0AVldQAFYBUQBRCVNSUANSAA9XUQMAAFBXBwQCVQM%3D; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMikgQXBwbGVXZWJLaXQvNjA0LjQuNyAoS0hUTUwsIGxpa2UgR2Vja28pIFZlcnNpb24vMTEuMC4yIFNhZmFyaS82MDQuNC43; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; login=U%2BGCWk%2F75gdr5Q%3D%3D; isg=ApqaMQx_lNktSRh40xSqgYbA4Ua8yx6l6htI56QTRi34FzpRjFtutWDlk992; _tb_token_=e365655409b3e; cookie2=16ccfb4758f19bd5cf23b9eac7d3cbac; v=0; account-path-guide-s1=true; cna=l/XHEsA6AkcCAd6D6/uBjpKz; t=7bd657fe303e50cbfbfa225bcee5698a'
+        'Cookie': 'isg=AiYmjF3jQP9dLxRUR6ieJfpEdZqoB2rBRh9EixDPEskkk8ateJe60Qxln7Pi; rurl=aHR0cDovL3B1Yi5hbGltYW1hLmNvbS9tYW5hZ2Uvc2VsZWN0aW9uL2RldGFpbC5odG0%2Fc3BtPWEyMTl0Ljc5MDAyMjElMkYxMS4xOTk4OTEwNDE5LmRiODE3Y2Y3Ni43OTNlNzlmZUtXRW81UyZncm91cElkPTE1MzIzNjYy; alimamapw=R0RydRZ1Bx0mJkR3B0R1BhAidlADBQc4Aw0AVldQAFYBUQBRCVNSUANSAA9XUQMAAFBXBwQCVQM%3D; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMikgQXBwbGVXZWJLaXQvNjA0LjQuNyAoS0hUTUwsIGxpa2UgR2Vja28pIFZlcnNpb24vMTEuMC4yIFNhZmFyaS82MDQuNC43; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; login=URm48syIIVrSKA%3D%3D; _tb_token_=e365655409b3e; cookie2=16ccfb4758f19bd5cf23b9eac7d3cbac; v=0; account-path-guide-s1=true; cna=l/XHEsA6AkcCAd6D6/uBjpKz; t=7bd657fe303e50cbfbfa225bcee5698a'
     }
 
     MYSQL_HOST = "127.0.0.1"
@@ -45,6 +45,7 @@ class Taobao(object):
         self.cursor = self.db.cursor()
 
     def __del__(self):
+        print '我被关闭了～'
         # 销毁对象的时候关闭链接
         # 关闭数据库连接
         self.db.close()
@@ -226,17 +227,32 @@ class Taobao(object):
         :return:
         """
         select_sql_count = """select count(*) from goods WHERE taobao_id={0}""".format(gscn.taobaoId)
-        count = self.cursor.execute(select_sql_count)
-        if count:
+        self.cursor.execute(select_sql_count)
+        count = self.cursor.fetchall()
+        if count[0][0]:
+            print "skipped", gscn.taobaoId
+            # coupon_id = None
+            # if gscn.couponAmount:
+            #     count_id =
+            # sql_goods = """update goods set create_time, update_time, disable, description, detail_imgs,
+            #                             goods_url, primary_photos, real_price, refer_price, source, title, type_id, brokerage,
+            #                             sold_count, online, goods_coupon_id)
+            #                             VALUES ({0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}) WHERE taobao_id = {16}""". \
+            #     format(gscn.createTime, gscn.updateTime, gscn.disable, gscn.description.encode('utf-8'),
+            #            gscn.detailImgs, gscn.goodsUrl, gscn.primaryPhotos,
+            #            gscn.referPrice - int(float(gscn.couponAmount) * 100), gscn.referPrice, gscn.source,
+            #            gscn.title.encode('utf-8'),
+            #            gscn.type_id, gscn.brokerage, gscn.soldCount, gscn.online, coupon_id, gscn.taobaoId)
+
             return
 
         try:
-            coupon_id = None
+            coupon_id = "null"
             if gscn.couponAmount:
                 # SQL 插入语句
                 sql_coupon = """INSERT INTO goods_coupon(create_time, update_time, disable, available_time, expiration_time, coupon_price, name, online, url)
-                         VALUES ({0},{1},{2},{3},{4},{5},{6},{7},{8}})""".\
-                    format(gscn.createTime, gscn.updateTime, gscn.disable, gscn.couponEffectiveStartTime, gscn.couponEffectiveEndTime, int(float(gscn.couponAmount)), gscn.couponInfo, gscn.online, gscn.couponUrl)
+                         VALUES ('{0}','{1}',{2},'{3}','{4}',{5},'{6}',{7},'{8}')""".\
+                    format(gscn.createTime, gscn.updateTime, gscn.disable, gscn.couponEffectiveStartTime, gscn.couponEffectiveEndTime, int(float(gscn.couponAmount)), gscn.couponInfo.encode('utf-8'), gscn.online, gscn.couponUrl)
 
                 self.cursor.execute(sql_coupon)
                 coupon_id = self.cursor.lastrowid
@@ -244,16 +260,18 @@ class Taobao(object):
             sql_goods = """INSERT INTO goods(create_time, update_time, disable, description, detail_imgs, 
                             goods_url, primary_photos, real_price, refer_price, source, title, type_id, brokerage, 
                             sold_count, online, goods_coupon_id, taobao_id)
-                            VALUES ({0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16}}})""". \
-                format(gscn.createTime, gscn.updateTime, False, gscn.description,gscn.detailImgs,gscn.goodsUrl, gscn.primaryPhotos,
-                       gscn.referPrice - int(float(gscn.couponAmount)*100), gscn.referPrice, gscn.source, gscn.title,
+                            VALUES ('{0}','{1}',{2},'{3}','{4}','{5}','{6}',{7},{8},'{9}','{10}',{11},{12},{13},{14},{15},{16})""". \
+                format(gscn.createTime, gscn.updateTime, gscn.disable, gscn.description.encode('utf-8'),gscn.detailImgs,gscn.goodsUrl, gscn.primaryPhotos,
+                       gscn.referPrice - int(float(gscn.couponAmount)*100), gscn.referPrice, gscn.source, gscn.title.encode('utf-8'),
                        gscn.type_id, gscn.brokerage, gscn.soldCount, gscn.online, coupon_id, gscn.taobaoId)
-
+            print sql_goods
             # 执行sql语句
             self.cursor.execute(sql_goods)
+
             # 提交到数据库执行
-            # self.db.commit()
-            self.db.autocommit(True)
+            self.db.commit()
+            print 'commit@@@@@@@@@@'
+            # self.db.autocommit(True)
         except Exception as e:
             # Rollback in case there is any error
             print e
@@ -285,7 +303,7 @@ class Taobao(object):
         # //gd3.alicdn.com/imgextra/i1/99303606/TB2nzIyfTnI8KJjSszbXXb4KFXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2TuqDeTnI8KJjSszgXXc8ApXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2cVmKeL2H8KJjy0FcXXaDlFXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2Dc1OeIjI8KJjSsppXXXbyVXa-99303606.jpg","//gd4.alicdn.com/imgextra/i4/99303606/TB2C0v_ciqAXuNjy1XdXXaYcVXa-99303606.jpg","//gd2.alicdn.com/imgextra/i2/99303606/TB1y5s1fL2H8KJjy1zkXXXr7pXa_!!0-item_pic.jpg"
         r = requests.get(url)
 
-        pattern = re.compile('//gd\d*\.alicdn\.com/imgextra/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg')
+        pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg')
         # html = '["//gd1.alicdn.com/imgextra/i1/11516132/TB2.M8jfsbI8KJjy1zdXXbe1VXa_!!11516132.jpg","//gd2.alicdn.com/imgextra/i2/11516132/TB2VnA7fhrI8KJjy0FpXXb5hVXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2FnWbbKLM8KJjSZFqXXa7.FXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2rpM8fhrI8KJjy0FpXXb5hVXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2XbBOekfb_uJjSsrbXXb6bVXa_!!11516132.jpg","//gd1.alicdn.com/imgextra/i1/11516132/TB1AhJJbLfM8KJjSZPfXXbklXXa_!!0-item_pic.jpg"]'
         html = r.text
         # print html
