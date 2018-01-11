@@ -24,7 +24,7 @@ class Taobao(object):
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Content-type': 'application/json',
         'Accept': 'application/json',
-        'Cookie': 'isg=AiYmjF3jQP9dLxRUR6ieJfpEdZqoB2rBRh9EixDPEskkk8ateJe60Qxln7Pi; rurl=aHR0cDovL3B1Yi5hbGltYW1hLmNvbS9tYW5hZ2Uvc2VsZWN0aW9uL2RldGFpbC5odG0%2Fc3BtPWEyMTl0Ljc5MDAyMjElMkYxMS4xOTk4OTEwNDE5LmRiODE3Y2Y3Ni43OTNlNzlmZUtXRW81UyZncm91cElkPTE1MzIzNjYy; alimamapw=R0RydRZ1Bx0mJkR3B0R1BhAidlADBQc4Aw0AVldQAFYBUQBRCVNSUANSAA9XUQMAAFBXBwQCVQM%3D; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMikgQXBwbGVXZWJLaXQvNjA0LjQuNyAoS0hUTUwsIGxpa2UgR2Vja28pIFZlcnNpb24vMTEuMC4yIFNhZmFyaS82MDQuNC43; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; login=URm48syIIVrSKA%3D%3D; _tb_token_=e365655409b3e; cookie2=16ccfb4758f19bd5cf23b9eac7d3cbac; v=0; account-path-guide-s1=true; cna=l/XHEsA6AkcCAd6D6/uBjpKz; t=7bd657fe303e50cbfbfa225bcee5698a'
+        'Cookie': 'cna=VkK0Ek2ioCMCAXt1pnJG+zrZ; t=2bdb7c8e27b03bb254abe7ac06cb8409; account-path-guide-s1=true; 128981071_yxjh-filter-1=true; UM_distinctid=1608847f2d2b0f-05ba854087aa45-32647e03-1aeaa0-1608847f2d38ad; v=0; cookie2=141bceb1dbd07f1a87ed79a45c9f2457; _tb_token_=e493e553e5ee7; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMikgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzYzLjAuMzIzOS4xMDggU2FmYXJpLzUzNy4zNg%3D%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; alimamapw=RBYgdUZ2ARZ7IhUjA0dyDEAidQJRBVc7BQZdUgYEBFUGW1BRCgEAUFNRBgQKVVJUBFNQDVQCVlE%3D; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; login=W5iHLLyFOGW7aA%3D%3D; taokeisb2c=; rurl=aHR0cDovL3B1Yi5hbGltYW1hLmNvbS9teXVuaW9uLmh0bT9zcG09YTIxOXQuNzkwMDIyMS8xLjE5OTg5MTA0MTkuZGQ0MDNiMGNhLjMzNDM1NmIwVWVyc0pBIyEvcHJvbW8vc2VsZi9hY3Rpdml0eQ%3D%3D; sec=5a57806a80c137caf40dec40bd1085de1ed018fc; isg=Ahwcq45IqnhzC17MJpqKo4EC7TwOPcC2csh6EPYcrIfbQbrLEafkTwyx1Z9C; apush1ebee5221dec2dc325deebaf8e013ae6=%7B%22ts%22%3A1515684131186%2C%22parentId%22%3A1515683799418%7D'
     }
 
     MYSQL_HOST = "127.0.0.1"
@@ -97,10 +97,11 @@ class Taobao(object):
         toPage = 1
         perPageSize = 50
 
-        url = "http://pub.alimama.com/items/channel/9k9.json?channel=9k9&perPageSize=50&shopTag=&t=1514471985823&_tb_token_=e365655409b3e&pvid=19_114.244.66.195_577_1514471782073"
+        # url = "http://pub.alimama.com/items/channel/9k9.json?channel=9k9&perPageSize=50&shopTag=&t=1514471985823&_tb_token_=e365655409b3e&pvid=19_114.244.66.195_577_1514471782073"
         # url = "https://tds.alicdn.com/json/item_imgs.htm?cb=jsonp_image_info&id=562144271394"
-        url = "https://tds.alicdn.com/json/item_imgs.htm?cb=jsonp_image_info&t=TB13WplgL2H8KJjy0FcXXaDlFXa&sid=11516132&id=562671602952&s=8c044083a1d11d28d94339fd726a1646&v=2&m=1"
+        # url = "https://tds.alicdn.com/json/item_imgs.htm?cb=jsonp_image_info&t=TB13WplgL2H8KJjy0FcXXaDlFXa&sid=11516132&id=562671602952&s=8c044083a1d11d28d94339fd726a1646&v=2&m=1"
         # http://pub.alimama.com/items/channel/9k9.json?channel=9k9&toPage=2&perPageSize=50&shopTag=&t=1514476176708&_tb_token_=e365655409b3e&pvid=16_114.244.66.195_536_1514471985950
+        url = 'https://s.click.taobao.com/jaA44Vw'
         r = requests.get(url,headers = self.HEADERS)
 
         # request('get', url, params=params, **kwargs)
@@ -135,6 +136,13 @@ class Taobao(object):
 
 
     def handler_goods(self, goods):
+        """
+        处理商品
+        从阿里妈妈的group中获取名字，然后根据组的名字在我们的数据中找goodsType中的类型，
+        名字这个数据必须是一一对应的
+        :param goods:
+        :return:
+        """
         if goods.get("status") == -1:
             return
         goods_type = goods.get("lemon_group_title")
@@ -251,26 +259,26 @@ class Taobao(object):
             if gscn.couponAmount:
                 # SQL 插入语句
                 sql_coupon = """INSERT INTO goods_coupon(create_time, update_time, disable, available_time, expiration_time, coupon_price, name, online, url)
-                         VALUES ('{0}','{1}',{2},'{3}','{4}',{5},'{6}',{7},'{8}')""".\
-                    format(gscn.createTime, gscn.updateTime, gscn.disable, gscn.couponEffectiveStartTime, gscn.couponEffectiveEndTime, int(float(gscn.couponAmount)), gscn.couponInfo.encode('utf-8'), gscn.online, gscn.couponUrl)
+                         VALUES ('{0}','{1}','{2}','{3}','{4}',{5},'{6}','{7}','{8}')""".\
+                    format(gscn.createTime, gscn.updateTime, 'T' if gscn.disable else 'F', gscn.couponEffectiveStartTime, gscn.couponEffectiveEndTime, int(float(gscn.couponAmount)), gscn.couponInfo.encode('utf-8'), 'T' if gscn.online else 'F', gscn.couponUrl)
 
                 self.cursor.execute(sql_coupon)
                 coupon_id = self.cursor.lastrowid
 
             sql_goods = """INSERT INTO goods(create_time, update_time, disable, description, detail_imgs, 
-                            goods_url, primary_photos, real_price, refer_price, source, title, type_id, brokerage, 
+                            goods_url, primary_photos, refer_price, source, title, type_id, brokerage, 
                             sold_count, online, goods_coupon_id, taobao_id)
-                            VALUES ('{0}','{1}',{2},'{3}','{4}','{5}','{6}',{7},{8},'{9}','{10}',{11},{12},{13},{14},{15},{16})""". \
-                format(gscn.createTime, gscn.updateTime, gscn.disable, gscn.description.encode('utf-8'),gscn.detailImgs,gscn.goodsUrl, gscn.primaryPhotos,
-                       gscn.referPrice - int(float(gscn.couponAmount)*100), gscn.referPrice, gscn.source, gscn.title.encode('utf-8'),
-                       gscn.type_id, gscn.brokerage, gscn.soldCount, gscn.online, coupon_id, gscn.taobaoId)
+                            VALUES ('{0}','{1}','{2}','{3}','{4}','{5}','{6}',{7},'{8}','{9}',{10},{11},{12},'{13}',{14},{15})""". \
+                format(gscn.createTime, gscn.updateTime, 'T' if gscn.disable else 'F', gscn.description.encode('utf-8'),gscn.detailImgs,gscn.goodsUrl, gscn.primaryPhotos,
+                        gscn.referPrice, gscn.source, gscn.title.encode('utf-8'),
+                       gscn.type_id, gscn.brokerage, gscn.soldCount, 'T' if gscn.online else 'F', coupon_id, gscn.taobaoId)
             print sql_goods
             # 执行sql语句
             self.cursor.execute(sql_goods)
 
             # 提交到数据库执行
             self.db.commit()
-            print 'commit@@@@@@@@@@'
+            print 'commit success'
             # self.db.autocommit(True)
         except Exception as e:
             # Rollback in case there is any error
@@ -303,8 +311,9 @@ class Taobao(object):
         # //gd3.alicdn.com/imgextra/i1/99303606/TB2nzIyfTnI8KJjSszbXXb4KFXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2TuqDeTnI8KJjSszgXXc8ApXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2cVmKeL2H8KJjy0FcXXaDlFXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2Dc1OeIjI8KJjSsppXXXbyVXa-99303606.jpg","//gd4.alicdn.com/imgextra/i4/99303606/TB2C0v_ciqAXuNjy1XdXXaYcVXa-99303606.jpg","//gd2.alicdn.com/imgextra/i2/99303606/TB1y5s1fL2H8KJjy1zkXXXr7pXa_!!0-item_pic.jpg"
         r = requests.get(url)
 
-        pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg')
+        pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg*|//\w*\.alicdn\.com/\w*/i\d/\w*[\.]*[-]*\w*!*\w*-?\w*\.SS2*')
         # html = '["//gd1.alicdn.com/imgextra/i1/11516132/TB2.M8jfsbI8KJjy1zdXXbe1VXa_!!11516132.jpg","//gd2.alicdn.com/imgextra/i2/11516132/TB2VnA7fhrI8KJjy0FpXXb5hVXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2FnWbbKLM8KJjSZFqXXa7.FXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2rpM8fhrI8KJjy0FpXXb5hVXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2XbBOekfb_uJjSsrbXXb6bVXa_!!11516132.jpg","//gd1.alicdn.com/imgextra/i1/11516132/TB1AhJJbLfM8KJjSZPfXXbklXXa_!!0-item_pic.jpg"]'
+        # //gd3.alicdn.com/imgextra/i2/TB1OeRYhDwKL1JjSZFgYXH6aVXa_M2.SS2","//gd1.alicdn.com/imgextra/i2/TB1wEh5hzoIL1JjSZFyYXHFBpXa_M2.SS2","//gd1.alicdn.com/imgextra/i8/TB1XKxRhywIL1JjSZFsYXIXFFXa_M2.SS2","//gd1.alicdn.com/imgextra/i5/TB1DfWzXG_ST1JjSZFqYXIQxFXa_M2.SS2","//gd1.alicdn.com/imgextra/i5/TB1xfJYhDwKL1JjSZFgYXH6aVXa_M2.SS2"
         html = r.text
         # print html
         res = pattern.findall(html)
@@ -319,4 +328,6 @@ if __name__ == '__main__':
     tao = Taobao()
     # tao.get_goods_detail_urls(562144271394)
     tao.do_actions()
+    # print tao.get_goods_detail_urls(562144271394)
+    # print tao.get_goods_detail_urls(558660616304)
 
