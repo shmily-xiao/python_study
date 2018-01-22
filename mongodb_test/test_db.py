@@ -104,7 +104,7 @@ def test_db(client):
     parent = db2.mongo_test.find({"parent": None})
     for item in parent:
         if item.get("children_id"):
-            children = db2.mongo_test.find({"$in": {"_id": item.get("children_id")}})
+            children = db2.mongo_test.find({"_id": {"$in": item.get("children_id")}})
 
     end = time.time()
 
