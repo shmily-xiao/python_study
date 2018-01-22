@@ -24,7 +24,7 @@ class Taobao(object):
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Content-type': 'application/json',
         'Accept': 'application/json',
-        'Cookie': 'cna=VkK0Ek2ioCMCAXt1pnJG+zrZ; t=2bdb7c8e27b03bb254abe7ac06cb8409; account-path-guide-s1=true; 128981071_yxjh-filter-1=true; UM_distinctid=1608847f2d2b0f-05ba854087aa45-32647e03-1aeaa0-1608847f2d38ad; v=0; cookie2=141bceb1dbd07f1a87ed79a45c9f2457; _tb_token_=e493e553e5ee7; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMikgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzYzLjAuMzIzOS4xMDggU2FmYXJpLzUzNy4zNg%3D%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; alimamapw=RBYgdUZ2ARZ7IhUjA0dyDEAidQJRBVc7BQZdUgYEBFUGW1BRCgEAUFNRBgQKVVJUBFNQDVQCVlE%3D; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; login=W5iHLLyFOGW7aA%3D%3D; taokeisb2c=; rurl=aHR0cDovL3B1Yi5hbGltYW1hLmNvbS9teXVuaW9uLmh0bT9zcG09YTIxOXQuNzkwMDIyMS8xLjE5OTg5MTA0MTkuZGQ0MDNiMGNhLjMzNDM1NmIwVWVyc0pBIyEvcHJvbW8vc2VsZi9hY3Rpdml0eQ%3D%3D; sec=5a57806a80c137caf40dec40bd1085de1ed018fc; isg=Ahwcq45IqnhzC17MJpqKo4EC7TwOPcC2csh6EPYcrIfbQbrLEafkTwyx1Z9C; apush1ebee5221dec2dc325deebaf8e013ae6=%7B%22ts%22%3A1515684131186%2C%22parentId%22%3A1515683799418%7D'
+        'Cookie': 'cna=VkK0Ek2ioCMCAXt1pnJG+zrZ; t=2bdb7c8e27b03bb254abe7ac06cb8409; UM_distinctid=1608847f2d2b0f-05ba854087aa45-32647e03-1aeaa0-1608847f2d38ad; v=0; cookie2=141bceb1dbd07f1a87ed79a45c9f2457; _tb_token_=e493e553e5ee7; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMikgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzYzLjAuMzIzOS4xMDggU2FmYXJpLzUzNy4zNg%3D%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; alimamapw=RBYgdUZ2ARZ7IhUjA0dyDEAidQJRBVc7BQZdUgYEBFUGW1BRCgEAUFNRBgQKVVJUBFNQDVQCVlE%3D; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; taokeisb2c=; login=UIHiLt3xD8xYTw%3D%3D; rurl=aHR0cDovL3B1Yi5hbGltYW1hLmNvbS9teXVuaW9uLmh0bT9zcG09YTIxOXQuNzkwMDIyMS8xLjE5OTg5MTA0MTkuZGQ0MDNiMGNhLjMzNDM1NmIwVWVyc0pB; isg=BPT0I_UoEketHYZUvtJiu6naxbSmZRi-agACaI5VgH8C-ZRDtt3oR6q7fDEhOlAP; _umdata=0823A424438F76ABEF4FD3710739132BD0481AFFECA47EEDFBDDC1864FD6D2575EBED8E71E7093ABCD43AD3E795C914C35F3254C76220806716C0F09AD20BF6E'
     }
 
     MYSQL_HOST = "127.0.0.1"
@@ -258,9 +258,11 @@ class Taobao(object):
             coupon_id = "null"
             if gscn.couponAmount:
                 # SQL 插入语句
-                sql_coupon = """INSERT INTO goods_coupon(create_time, update_time, disable, available_time, expiration_time, coupon_price, name, online, url)
-                         VALUES ('{0}','{1}','{2}','{3}','{4}',{5},'{6}','{7}','{8}')""".\
-                    format(gscn.createTime, gscn.updateTime, 'T' if gscn.disable else 'F', gscn.couponEffectiveStartTime, gscn.couponEffectiveEndTime, int(float(gscn.couponAmount)), gscn.couponInfo.encode('utf-8'), 'T' if gscn.online else 'F', gscn.couponUrl)
+                sql_coupon = """INSERT INTO goods_coupon(create_time, update_time, disable, available_time, expiration_time, coupon_price, name, online, url, total_Count)
+                         VALUES ('{0}','{1}','{2}','{3}','{4}',{5},'{6}','{7}','{8}',{9}})""".\
+                    format(gscn.createTime, gscn.updateTime, 'T' if gscn.disable else 'F', gscn.couponEffectiveStartTime,
+                           gscn.couponEffectiveEndTime, int(float(gscn.couponAmount)), gscn.couponInfo.encode('utf-8'),
+                           'T' if gscn.online else 'F', gscn.couponUrl, gscn.couponTotalCount)
 
                 self.cursor.execute(sql_coupon)
                 coupon_id = self.cursor.lastrowid

@@ -90,7 +90,7 @@ class GoodsItem(object):
         self.couponEffectiveEndTime = ob.get("couponEffectiveEndTime") # 优惠券的结束使用时间
         self.couponTotalCount = ob.get("couponTotalCount") # 总共有多少优惠卷
         self.couponLeftCount = ob.get("couponLeftCount") # 剩余多少优惠券
-        self.couponAmount = ob.get("couponAmount") # 优惠的金额
+        self.couponAmount = int(ob.get("couponAmount"))*100 if ob.get("couponAmount") else 0# 优惠的金额
         self.couponInfo = ob.get("couponInfo") # 优惠券的描述
         self.couponUrl = share_url_data.get("couponLink")
 
