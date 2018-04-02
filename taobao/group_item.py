@@ -24,13 +24,14 @@ class Taobao(object):
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Content-type': 'application/json',
         'Accept': 'application/json',
-        'Cookie': 'cna=VkK0Ek2ioCMCAXt1pnJG+zrZ; t=2bdb7c8e27b03bb254abe7ac06cb8409; UM_distinctid=1608847f2d2b0f-05ba854087aa45-32647e03-1aeaa0-1608847f2d38ad; v=0; cookie2=141bceb1dbd07f1a87ed79a45c9f2457; _tb_token_=e493e553e5ee7; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMikgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzYzLjAuMzIzOS4xMDggU2FmYXJpLzUzNy4zNg%3D%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; alimamapw=RBYgdUZ2ARZ7IhUjA0dyDEAidQJRBVc7BQZdUgYEBFUGW1BRCgEAUFNRBgQKVVJUBFNQDVQCVlE%3D; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; taokeisb2c=; login=UIHiLt3xD8xYTw%3D%3D; rurl=aHR0cDovL3B1Yi5hbGltYW1hLmNvbS9teXVuaW9uLmh0bT9zcG09YTIxOXQuNzkwMDIyMS8xLjE5OTg5MTA0MTkuZGQ0MDNiMGNhLjMzNDM1NmIwVWVyc0pB; isg=BPT0I_UoEketHYZUvtJiu6naxbSmZRi-agACaI5VgH8C-ZRDtt3oR6q7fDEhOlAP; _umdata=0823A424438F76ABEF4FD3710739132BD0481AFFECA47EEDFBDDC1864FD6D2575EBED8E71E7093ABCD43AD3E795C914C35F3254C76220806716C0F09AD20BF6E'
+        'Cookie': ''
     }
 
     MYSQL_HOST = "127.0.0.1"
     MYSQL_PORT = "3306"
-    MYSQL_PWD = "qazwsx1234"
-    MYSQL_DATABASE = "lemon_youxuan"
+    MYSQL_PWD = "1234"
+    MYSQL_DATABASE = "test"
+    MYSQL_USER = "root"
 
     # 如果更换了推荐的id，请更换这个id
     ADZONE_ID = 150364908
@@ -40,7 +41,7 @@ class Taobao(object):
 
     def __init__(self):
         # 打开数据库连接
-        self.db = MySQLdb.connect(host=self.MYSQL_HOST, user="root", passwd=self.MYSQL_PWD, db=self.MYSQL_DATABASE, charset="utf8")
+        self.db = MySQLdb.connect(host=self.MYSQL_HOST, user=self.MYSQL_USER, passwd=self.MYSQL_PWD, db=self.MYSQL_DATABASE, charset="utf8")
         # 使用cursor()方法获取操作游标
         self.cursor = self.db.cursor()
 
@@ -144,6 +145,8 @@ class Taobao(object):
         :return:
         """
         if goods.get("status") == -1:
+            # 如果这个商品被置为失败，那么就删掉这个商品
+            self._delete_goods_by_taoboId(goods.get("auctionId"))
             return
         goods_type = goods.get("lemon_group_title").split("-")
         item_goods_type = goods_type.pop() # 最具体的那一层
@@ -154,10 +157,14 @@ class Taobao(object):
 
         self.cursor.execute("select id from goods_type WHERE name='{0}' AND level={1}".format(home_goods_type.encode('utf-8'), 1))
         results = self.cursor.fetchall()
+        if not results:
+            return
         home_id = results[0][0]
 
         self.cursor.execute("select id from goods_type WHERE name='{0}' AND level={1} AND parent_id={2}".format(type_goods_type.encode('utf-8'), 2, int(home_id)))
         results = self.cursor.fetchall()
+        if not results:
+            return
         type_id = results[0][0]
 
         self.cursor.execute("select id from goods_type WHERE name='{0}' AND level={1} AND parent_id={2}".format(item_goods_type.encode('utf-8'), 3, int(type_id)))
@@ -171,11 +178,33 @@ class Taobao(object):
         if not share_url_data:
             print "skip", goods.get("auctionId")
             return
+        try:
+            db_goods = GoodsItem(share_url_data, self.get_goods_detail_urls(goods.get("auctionId")), item_id, goods)
+            # map(self.goods_2_db, db_goods)
+            self.goods_2_db(db_goods)
+        except Exception as e:
+            print e.message
+        time.sleep(0.7)
 
-        db_goods = GoodsItem(share_url_data, self.get_goods_detail_urls(goods.get("auctionId")), item_id, goods)
-        # map(self.goods_2_db, db_goods)
-        self.goods_2_db(db_goods)
-        time.sleep(1)
+    def _delete_goods_by_taoboId(self, taobaoId):
+        """
+            通过淘宝ID 删除数据库里面的数据
+        :param taobaoId:
+        :return:
+        """
+        if not taobaoId:
+            return
+        select_sql_count = """select count(*) from goods WHERE taobao_id={0}""".format(taobaoId)
+        self.cursor.execute(select_sql_count)
+        count = self.cursor.fetchall()
+        if not count[0][0]:
+            return taobaoId
+
+        delete_sql_count = """delete from goods WHERE taobao_id={0}""".format(taobaoId)
+        self.cursor.execute(delete_sql_count)
+        delete_count = self.cursor.fetchall()
+        print "delete taobaoId : {0}, count : {1}".format(taobaoId, delete_count)
+        return taobaoId
 
 
     def get_my_groups(self):
@@ -193,7 +222,7 @@ class Taobao(object):
 
         url = get_url.format(40)
 
-        r = requests.get(url,headers=self.HEADERS)
+        r = requests.get(url,headers=self.HEADERS, verify=False)
 
         data = ""
         if r.status_code == 200:
@@ -245,7 +274,6 @@ class Taobao(object):
 
     def goods_2_db_data(self):
 
-
         pass
 
     def goods_2_db(self, gscn):
@@ -278,7 +306,7 @@ class Taobao(object):
             if gscn.couponAmount:
                 # SQL 插入语句
                 sql_coupon = """INSERT INTO goods_coupon(create_time, update_time, disable, available_time, expiration_time, coupon_price, name, online, url, total_Count)
-                         VALUES ('{0}','{1}','{2}','{3}','{4}',{5},'{6}','{7}','{8}',{9}})""".\
+                         VALUES ("{0}","{1}","{2}","{3}","{4}",{5},"{6}","{7}","{8}",{9})""".\
                     format(gscn.createTime, gscn.updateTime, 'T' if gscn.disable else 'F', gscn.couponEffectiveStartTime,
                            gscn.couponEffectiveEndTime, int(float(gscn.couponAmount)), gscn.couponInfo.encode('utf-8'),
                            'T' if gscn.online else 'F', gscn.couponUrl, gscn.couponTotalCount)
@@ -289,7 +317,7 @@ class Taobao(object):
             sql_goods = """INSERT INTO goods(create_time, update_time, disable, description, detail_imgs, 
                             goods_url, primary_photos, refer_price, source, title, type_id, brokerage, 
                             sold_count, online, goods_coupon_id, taobao_id)
-                            VALUES ('{0}','{1}','{2}','{3}','{4}','{5}','{6}',{7},'{8}','{9}',{10},{11},{12},'{13}',{14},{15})""". \
+                            VALUES ("{0}","{1}","{2}","{3}","{4}","{5}","{6}",{7},"{8}","{9}",{10},{11},{12},"{13}",{14},{15})""". \
                 format(gscn.createTime, gscn.updateTime, 'T' if gscn.disable else 'F', gscn.description.encode('utf-8'),gscn.detailImgs,gscn.goodsUrl, gscn.primaryPhotos,
                         gscn.referPrice, gscn.source, gscn.title.encode('utf-8'),
                        gscn.type_id, gscn.brokerage, gscn.soldCount, 'T' if gscn.online else 'F', coupon_id, gscn.taobaoId)
@@ -328,19 +356,13 @@ class Taobao(object):
 
         url = "https://item.taobao.com/item.htm?id={0}".format(goods_id)
 
-        # url = "https://tds.alicdn.com/json/item_imgs.htm?cb=jsonp_image_info&t=TB13WplgL2H8KJjy0FcXXaDlFXa&sid=11516132&id=561301607211&s=8c044083a1d11d28d94339fd726a1646&v=2&m=1"
-        # //gd3.alicdn.com/imgextra/i1/99303606/TB2nzIyfTnI8KJjSszbXXb4KFXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2TuqDeTnI8KJjSszgXXc8ApXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2cVmKeL2H8KJjy0FcXXaDlFXa-99303606.jpg","//gd3.alicdn.com/imgextra/i3/99303606/TB2Dc1OeIjI8KJjSsppXXXbyVXa-99303606.jpg","//gd4.alicdn.com/imgextra/i4/99303606/TB2C0v_ciqAXuNjy1XdXXaYcVXa-99303606.jpg","//gd2.alicdn.com/imgextra/i2/99303606/TB1y5s1fL2H8KJjy1zkXXXr7pXa_!!0-item_pic.jpg"
         r = requests.get(url)
 
         pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg*|//\w*\.alicdn\.com/\w*/i\d/\w*[\.]*[-]*\w*!*\w*-?\w*\.SS2*')
-        # html = '["//gd1.alicdn.com/imgextra/i1/11516132/TB2.M8jfsbI8KJjy1zdXXbe1VXa_!!11516132.jpg","//gd2.alicdn.com/imgextra/i2/11516132/TB2VnA7fhrI8KJjy0FpXXb5hVXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2FnWbbKLM8KJjSZFqXXa7.FXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2rpM8fhrI8KJjy0FpXXb5hVXa_!!11516132.jpg","//gd4.alicdn.com/imgextra/i4/11516132/TB2XbBOekfb_uJjSsrbXXb6bVXa_!!11516132.jpg","//gd1.alicdn.com/imgextra/i1/11516132/TB1AhJJbLfM8KJjSZPfXXbklXXa_!!0-item_pic.jpg"]'
-        # //gd3.alicdn.com/imgextra/i2/TB1OeRYhDwKL1JjSZFgYXH6aVXa_M2.SS2","//gd1.alicdn.com/imgextra/i2/TB1wEh5hzoIL1JjSZFyYXHFBpXa_M2.SS2","//gd1.alicdn.com/imgextra/i8/TB1XKxRhywIL1JjSZFsYXIXFFXa_M2.SS2","//gd1.alicdn.com/imgextra/i5/TB1DfWzXG_ST1JjSZFqYXIQxFXa_M2.SS2","//gd1.alicdn.com/imgextra/i5/TB1xfJYhDwKL1JjSZFgYXH6aVXa_M2.SS2"
         html = r.text
-        # print html
         res = pattern.findall(html)
         res = list(set(res))
         return ",".join(res)
-        # https://tds.alicdn.com/json/item_imgs.htm?cb=jsonp_image_info&t=TB13WplgL2H8KJjy0FcXXaDlFXa&sid=11516132&id=562144271394&s=8c044083a1d11d28d94339fd726a1646&v=2&m=1
 
 
 if __name__ == '__main__':
@@ -348,7 +370,7 @@ if __name__ == '__main__':
 
     tao = Taobao()
     # tao.get_goods_detail_urls(562144271394)
-    tao.do_actions()
-    # print tao.get_goods_detail_urls(562144271394)
+    # tao.do_actions()
+    print tao.get_goods_detail_urls(562224396958)
     # print tao.get_goods_detail_urls(558660616304)
 
