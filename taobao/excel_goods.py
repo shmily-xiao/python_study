@@ -16,10 +16,10 @@ from decimal import Decimal
 db_host = "localhost"
 db_user = "root"
 db_passwd = "qazwsx1234"
-
+# https://pub.alimama.com/coupon/qq/export.json?adzoneId=150364908&siteId=39972563
 db_name = "lemon_youxuan"
 
-file_path = r"/lemon/2018-04-01.xls"
+file_path = r"/lemon/2018-04-10.xls"
 
 
 def connectdb():
@@ -174,16 +174,50 @@ def get_goods_detail_urls(goods_id):
 
     url = "https://item.taobao.com/item.htm?id={0}".format(goods_id)
 
-    r = requests.get(url, timeout=30)
+    try:
 
-    pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg*|//\w*\.alicdn\.com/\w*/i\d/\w*[\.]*[-]*\w*!*\w*-?\w*\.SS2*')
-    html = r.text
-    res = pattern.findall(html)
-    res = list(set(res))
-    return ",".join(res)
+
+        r = requests.get(url)
+        # r = requests.get(url, timeout=30)
+
+        pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg*|//\w*\.alicdn\.com/\w*/i\d/\w*[\.]*[-]*\w*!*\w*-?\w*\.SS2*')
+        html = r.text
+        res = pattern.findall(html)
+        res = list(set(res))
+        return ",".join(res)
+    except Exception as e:
+        print e.message
+        print url
+        return ""
 
 def closedb(db):
     db.close()
+
+def delete_goods_and_coupon(db):
+
+    now = datetime.datetime.now().strftime("%Y-%m-%d")
+    now = now + " 23:59:59"
+    select_sql_string = """ select id from goods_coupon WHERE expiration_time <= '{0}'""".format(now)
+
+    delete_goods_coupon_string = """delete from lemon_youxuan.goods_coupon WHERE id={0}"""
+    delete_goods_string = """delete from lemon_youxuan.goods WHERE goods_coupon_id={0}"""
+
+    cursor = db.cursor()
+
+    print select_sql_string
+    cursor.execute(select_sql_string)
+    coupons = cursor.fetchall()
+    if not coupons:
+        return
+
+    for item in coupons:
+        print "coupon_id:" , item[0]
+        cursor.execute(delete_goods_string.format(item[0]))
+        cursor.execute(delete_goods_coupon_string.format(item[0]))
+        cursor.fetchall()
+
+    db.commit()
+
 
 
 def main():
@@ -192,6 +226,10 @@ def main():
     insertGoodsAndCoupons(db)  # 插入数据
 
     print 'insert success'
+
+    delete_goods_and_coupon(db)  # 删除过期的优惠券和相应的商品
+
+    print "delete success"
 
     closedb(db)  # 关闭数据库
 

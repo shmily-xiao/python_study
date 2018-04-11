@@ -24,14 +24,14 @@ class Taobao(object):
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Content-type': 'application/json',
         'Accept': 'application/json',
-        'Cookie': ''
+        'Cookie': "isg=BEhII6MMhqeHv-qutX6YL8iKG7Ba8az7qbSEkwL5lEO23ehHqgF8i94bUTWtdmTT; alimamapw=Fh0hIUZyUUAnJxYjCR0nURByJwlQUVc%2FVVABVwUEDg9TBgABWAoBBFNVVlJWUFFUDgkFUARSBFo%3D; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMykgQXBwbGVXZWJLaXQvNjA0LjUuNiAoS0hUTUwsIGxpa2UgR2Vja28pIFZlcnNpb24vMTEuMC4zIFNhZmFyaS82MDQuNS42; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; login=W5iHLLyFOGW7aA%3D%3D; cna=xKdTE0sx2jQCAd3Z3C34syy0; qq-best-goods-down-time=1523192677021; _tb_token_=ffd10ebdbe9aa; cookie2=1e32aeaab4b57e78b17eceea4456a7c6; v=0; excel-down-time-MKT_HOT_EXCEL_LIST=1520433631390; 128981071_yxjh-filter-1=true; account-path-guide-s1=true; t=7bd657fe303e50cbfbfa225bcee5698a"
     }
 
     MYSQL_HOST = "127.0.0.1"
     MYSQL_PORT = "3306"
-    MYSQL_PWD = "1234"
+    MYSQL_PWD = "qazwsx"
     MYSQL_DATABASE = "test"
-    MYSQL_USER = "root"
+    MYSQL_USER = "lemon"
 
     # 如果更换了推荐的id，请更换这个id
     ADZONE_ID = 150364908
@@ -133,7 +133,9 @@ class Taobao(object):
         group_ids = self.get_my_groups()
         for item in group_ids:
             goods_list = self.get_goods_by_group_id(item)
-            map(self.handler_goods, goods_list)
+            # map(self.handler_goods, goods_list)
+            for goods in goods_list:
+                self.handler_goods(goods)
 
 
     def handler_goods(self, goods):
@@ -174,17 +176,25 @@ class Taobao(object):
         if not item_id:
             return
 
-        share_url_data = self.get_my_share_url(goods.get("auctionId"))
-        if not share_url_data:
-            print "skip", goods.get("auctionId")
+        # 先判断是否已经拥有
+        select_sql_count = """select count(*) from goods WHERE taobao_id={0}""".format(goods.get("auctionId"))
+        self.cursor.execute(select_sql_count)
+        count = self.cursor.fetchall()
+        if count[0][0]:
+            print "skipped", goods.get("auctionId")
             return
+
         try:
+            share_url_data = self.get_my_share_url(goods.get("auctionId"))
+            if not share_url_data:
+                print "skip", goods.get("auctionId")
+                return
             db_goods = GoodsItem(share_url_data, self.get_goods_detail_urls(goods.get("auctionId")), item_id, goods)
             # map(self.goods_2_db, db_goods)
             self.goods_2_db(db_goods)
         except Exception as e:
             print e.message
-        time.sleep(0.7)
+        time.sleep(1)
 
     def _delete_goods_by_taoboId(self, taobaoId):
         """
@@ -269,7 +279,8 @@ class Taobao(object):
         for item in item_list:
             # 用一个取用一个
             item["lemon_group_title"] = title
-            yield item
+            # yield item
+        return item_list
 
 
     def goods_2_db_data(self):
@@ -281,25 +292,6 @@ class Taobao(object):
         更新goods 和 goodsCoupon
         :return:
         """
-        select_sql_count = """select count(*) from goods WHERE taobao_id={0}""".format(gscn.taobaoId)
-        self.cursor.execute(select_sql_count)
-        count = self.cursor.fetchall()
-        if count[0][0]:
-            print "skipped", gscn.taobaoId
-            # coupon_id = None
-            # if gscn.couponAmount:
-            #     count_id =
-            # sql_goods = """update goods set create_time, update_time, disable, description, detail_imgs,
-            #                             goods_url, primary_photos, real_price, refer_price, source, title, type_id, brokerage,
-            #                             sold_count, online, goods_coupon_id)
-            #                             VALUES ({0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}) WHERE taobao_id = {16}""". \
-            #     format(gscn.createTime, gscn.updateTime, gscn.disable, gscn.description.encode('utf-8'),
-            #            gscn.detailImgs, gscn.goodsUrl, gscn.primaryPhotos,
-            #            gscn.referPrice - int(float(gscn.couponAmount) * 100), gscn.referPrice, gscn.source,
-            #            gscn.title.encode('utf-8'),
-            #            gscn.type_id, gscn.brokerage, gscn.soldCount, gscn.online, coupon_id, gscn.taobaoId)
-
-            return
 
         try:
             coupon_id = "null"
@@ -355,14 +347,20 @@ class Taobao(object):
         """
 
         url = "https://item.taobao.com/item.htm?id={0}".format(goods_id)
+        try:
+            r = requests.get(url, timeout=10)
 
-        r = requests.get(url)
+            pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg*|//\w*\.alicdn\.com/\w*/i\d/\w*[\.]*[-]*\w*!*\w*-?\w*\.SS2*')
+            html = r.text
+            res = pattern.findall(html)
+            res = list(set(res))
+            return ",".join(res)
+        except Exception as e:
+            print e.message
+            print url
+            return ""
 
-        pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg*|//\w*\.alicdn\.com/\w*/i\d/\w*[\.]*[-]*\w*!*\w*-?\w*\.SS2*')
-        html = r.text
-        res = pattern.findall(html)
-        res = list(set(res))
-        return ",".join(res)
+
 
 
 if __name__ == '__main__':
@@ -370,7 +368,7 @@ if __name__ == '__main__':
 
     tao = Taobao()
     # tao.get_goods_detail_urls(562144271394)
-    # tao.do_actions()
-    print tao.get_goods_detail_urls(562224396958)
+    tao.do_actions()
+    # print tao.get_goods_detail_urls(562224396958)
     # print tao.get_goods_detail_urls(558660616304)
 
