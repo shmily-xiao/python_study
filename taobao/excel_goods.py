@@ -26,7 +26,7 @@ def connectdb():
     print('连接到mysql服务器...')
     # 打开数据库连接
     # 用户名:root, 密码:123456,用户名和密码需要改成你自己的mysql用户名和密码，并且要创建数据库TESTDB，并在TESTDB数据库中创建好表Student
-    db = MySQLdb.connect(db_host,db_user,db_passwd,db_name)
+    db = MySQLdb.connect(db_host,db_user,db_passwd,db_name, charset="utf-8")
     print('连接上了!')
     return db
 
@@ -59,7 +59,8 @@ def insertGoodsAndCoupons(db):
             continue
 
         if find_goods_by_taobaoid(db, sheet.cell_value(i, 0)):
-            continue
+            delete_one_goods(db,sheet.cell_value(i, 0))
+            # continue
 
         # for j in range(ncols):
         print sheet.cell_value(i, 17)
@@ -99,11 +100,12 @@ def insertGoodsAndCoupons(db):
 
 def find_goods_by_taobaoid(db,taobaoId):
     select_sql_count = """select count(*) from goods WHERE taobao_id={0}""".format(taobaoId)
+    # select_sql_count = """select id from goods WHERE taobao_id={0}""".format(taobaoId)
     cursor = db.cursor()
     cursor.execute(select_sql_count)
     count = cursor.fetchall()
     if count[0][0]:
-        print "skipped", taobaoId
+        print "overwrite ", taobaoId
         return taobaoId
     return None
 
@@ -196,8 +198,8 @@ def closedb(db):
 def delete_goods_and_coupon(db):
 
     now = datetime.datetime.now().strftime("%Y-%m-%d")
-    now = now + " 23:59:59"
-    select_sql_string = """ select id from goods_coupon WHERE expiration_time <= '{0}'""".format(now)
+    now = now + " 0:0:0"
+    select_sql_string = """ select id from goods_coupon WHERE expiration_time < '{0}'""".format(now)
 
     delete_goods_coupon_string = """delete from lemon_youxuan.goods_coupon WHERE id={0}"""
     delete_goods_string = """delete from lemon_youxuan.goods WHERE goods_coupon_id={0}"""
@@ -219,6 +221,29 @@ def delete_goods_and_coupon(db):
     db.commit()
 
 
+def delete_one_goods(db, key):
+
+    select_sql_string = """ select goods_coupon_id from goods WHERE taobao_id={0}""".format(key)
+
+    delete_goods_coupon_string = """delete from lemon_youxuan.goods_coupon WHERE id={0}"""
+    delete_goods_string = """delete from lemon_youxuan.goods WHERE goods_coupon_id={0}"""
+
+    cursor = db.cursor()
+
+    # print select_sql_string
+    cursor.execute(select_sql_string)
+    coupons = cursor.fetchall()
+    if not coupons:
+        return
+
+    for item in coupons:
+        print "delete coupon_id:", item[0]
+        cursor.execute(delete_goods_string.format(item[0]))
+        cursor.execute(delete_goods_coupon_string.format(item[0]))
+        cursor.fetchall()
+
+    db.commit()
+
 
 def main():
     db = connectdb()  # 连接MySQL数据库
@@ -228,6 +253,7 @@ def main():
     print 'insert success'
 
     delete_goods_and_coupon(db)  # 删除过期的优惠券和相应的商品
+    # delete_one_goods(db,1)
 
     print "delete success"
 
