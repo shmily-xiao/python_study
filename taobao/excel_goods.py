@@ -19,7 +19,7 @@ db_passwd = "qazwsx1234"
 # https://pub.alimama.com/coupon/qq/export.json?adzoneId=150364908&siteId=39972563
 db_name = "lemon_youxuan"
 
-file_path = r"/lemon/2018-04-10.xls"
+excel_file_paths = [r"/lemon/2018-04-10.xls"]
 
 
 def connectdb():
@@ -30,7 +30,7 @@ def connectdb():
     print('连接上了!')
     return db
 
-def readExcel():
+def readExcel(file_path):
     xlsfile = file_path  # 打开指定路径中的xls文件
 
     book = xlrd.open_workbook(xlsfile)  # 得到Excel文件的book对象，实例化对象
@@ -40,13 +40,13 @@ def readExcel():
     return book.sheet_by_name(sheet_name)  # 通过sheet名字来获取，当然如果知道sheet名字就可以直接指定
 
 
-def insertGoodsAndCoupons(db):
+def insertGoodsAndCoupons(db, path_list):
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
 
     nowtime = datetime.datetime.now()
 
-    sheet = readExcel()
+    sheet = readExcel(path_list)
 
     nrows = sheet.nrows  # 获取行总数
     ncols = sheet.ncols  # 获取列总数
@@ -248,7 +248,8 @@ def delete_one_goods(db, key):
 def main():
     db = connectdb()  # 连接MySQL数据库
 
-    insertGoodsAndCoupons(db)  # 插入数据
+    for excel_file_path in excel_file_paths:
+        insertGoodsAndCoupons(db, excel_file_path)  # 插入数据
 
     print 'insert success'
 
