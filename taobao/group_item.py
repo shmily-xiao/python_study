@@ -24,13 +24,13 @@ class Taobao(object):
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Content-type': 'application/json',
         'Accept': 'application/json',
-        'Cookie': "isg=BIeH67AikAleOxXTTjNP2oO_FD1RjFtukoHbDll0o5Y9yKeKYVzrvsUObgiWOzPm; apush1ebee5221dec2dc325deebaf8e013ae6=%7B%22ts%22%3A1528298411018%2C%22parentId%22%3A1528297940740%7D; alimamapw=Fh0hIUZyUUAnJxYjCR0nURByJwlQUVc%2FVVABVwUEDg9TBgABWAoBBFNVVlJWUFFUDgkFUARSBFo%3D; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfMykgQXBwbGVXZWJLaXQvNjA0LjUuNiAoS0hUTUwsIGxpa2UgR2Vja28pIFZlcnNpb24vMTEuMC4zIFNhZmFyaS82MDQuNS42; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; login=Vq8l%2BKCLz3%2F65A%3D%3D; excel-down-time-MKT_HOT_EXCEL_LIST=1528045083804; excel-down-time-TMALL_618_HOT_LIST=1528044935062; excel-down-time-TMALL_618_HOT_LIST1=1528044922924; excel-down-time-TMALL_618_HOT_LIST2=1528044914826; qq-best-goods-down-time=1528044418588; _tb_token_=e583b8555b78e; cookie2=1372a0477c24e78b41f72acddaf4a7ef; v=0; cna=dnKRE134Zz4CAX0iDSDoYBq7; undefined_yxjh-filter-1=true; 128981071_yxjh-filter-1=true; account-path-guide-s1=true; t=7bd657fe303e50cbfbfa225bcee5698a"
+        'Cookie': "isg=BIuL98W1VAKNLIlH6i-LZr8LGCl1IJ-i_YYvNf2ouUv9HLd-g_Mv8X568pzyJ_ea; apush1ebee5221dec2dc325deebaf8e013ae6=%7B%22ts%22%3A1532003399846%2C%22parentId%22%3A1532003150039%7D; rurl=aHR0cHM6Ly9wdWIuYWxpbWFtYS5jb20vP3NwbT1hMjE5dC43OTAwMjIxLzEwLmEyMTR0cjguZDAwNi41ZTQ5NzVhNTBGQjl6Zw%3D%3D; alimamapw=T0cmdkQnV0AjJxN1U0ElABd3flNXBlVqU1AFVwBSVFNRVwcEAVAGU1EAUFJSUFQCVFUHAQNXXQA%3D; alimamapwag=TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTNfNSkgQXBwbGVXZWJLaXQvNjA1LjEuMTUgKEtIVE1MLCBsaWtlIEdlY2tvKSBWZXJzaW9uLzExLjEuMSBTYWZhcmkvNjA1LjEuMTU%3D; cookie31=MTI4OTgxMDcxLHclRTYlQjclOTglRTklODclOTElRTglODAlODUxMjM0LHdhbmd6YWlqdW4xMjM0QDEyNi5jb20sVEI%3D; cookie32=9555e290f1eae8efa6a0714714ce9434; login=W5iHLLyFOGW7aA%3D%3D; qq-best-goods-down-time=1531977986269; JSESSIONID=1F848EF06882577B583F3F9857C82F34; _tb_token_=fbfe013367075; cookie2=13e18a0e250f1b6bfb7aa6473eccd956; v=0; cna=l/XHEsA6AkcCAd6D6/uBjpKz; excel-down-time-TMALL_618_HOT_LIST=1529171071587; excel-down-time-CP_HOT_LIST=1528942959180; excel-down-time-JUPINTUAN_LIST=1528907442206; excel-down-time-TMALL_618_HOT_LIST2=1528600243715; excel-down-time-TMALL_618_HOT_LIST1=1528600238992; excel-down-time-MKT_HOT_EXCEL_LIST=1528600229333; undefined_yxjh-filter-1=true; 128981071_yxjh-filter-1=true; account-path-guide-s1=true; t=7bd657fe303e50cbfbfa225bcee5698a"
     }
 
-    MYSQL_HOST = "127.0.0.1"
+    MYSQL_HOST = "118.24.77.131"
     MYSQL_PORT = "3306"
-    MYSQL_PWD = "qazwsx"
-    MYSQL_DATABASE = "test"
+    MYSQL_PWD = "qazwsx1234"
+    MYSQL_DATABASE = "lemon_youxuan"
     MYSQL_USER = "lemon"
 
     # 如果更换了推荐的id，请更换这个id

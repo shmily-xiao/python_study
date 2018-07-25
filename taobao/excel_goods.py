@@ -244,6 +244,21 @@ def delete_one_goods(db, key):
 
     db.commit()
 
+def visit_next(home=0):
+
+    if home:
+        nextpage = "http://www.lmyouxuan.com/nextPage?page={0}&size=20&home={1}&isSearch=false"
+    else:
+        nextpage = "http://www.lmyouxuan.com/nextPage?page={0}&size=20&isSearch=false"
+
+    for item in xrange(500):
+        if home:
+            url = nextpage.format(item + 1, home)
+        else:
+            url = nextpage.format(item + 1)
+        requests.get(url)
+        # print url
+
 
 def main():
     db = connectdb()  # 连接MySQL数据库
@@ -259,6 +274,10 @@ def main():
     print "delete success"
 
     closedb(db)  # 关闭数据库
+
+    visit_next(31)
+    visit_next()
+
 
 
 if __name__ == '__main__':
