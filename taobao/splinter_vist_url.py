@@ -5,13 +5,17 @@ import time
 import re
 import requests
 import json
+import os
+from multiprocessing import Pool
 from splinter import Browser
 
 coupon_pattern = re.compile("https://uland.taobao.com/?\w*/?\w*.*\">")
 lemon_url_pattern = re.compile("/goods/detail/\d+")
 
 def get_chorme():
-    executable_path = {'executable_path': '/Users/zaijunwang/workspace/python/python_study/taobao/chromedriver'}
+    # 驱动存放的地方记得修改
+    # todo
+    executable_path = {'executable_path': 'python/python_study/taobao/chromedriver'}
 
     browser = Browser('chrome', **executable_path)
     return browser
@@ -132,16 +136,50 @@ def get_keys_by_page(skip=0, home=""):
         # for item in page_data:
         #     print item.get("couponUrl")
 
-        yield [item.get("couponUrl") for item in page_data]
+        yield [{item.get("id"):item.get("couponUrl")} for item in page_data]
         # print lemon_url_pattern.findall(html)
 
+def delete_goods(key):
 
+    # 删除链接
+    # todo 记得修改
+    url = "http://www.lmyouxuan.com/goods/delete/{0}".format(key)
+    r = requests.get(url)
+    print r
+    print "----->>>>>>>>> {0}".format(key)
+
+
+def do_actions(range_item=0):
+
+    print "------- task {0} is run ------".format(os.getpid())
+    time.sleep(1)
+    skips = [0, 626, 625 * 2 + 1, 625 * 3 + 1]
+    pages = get_keys_by_page(skip=skips[range_item%4], home=31)
+
+    for item in pages:
+
+        # [{k:v},{k:v}]
+        for coupon_item in item:
+
+            # 其实只有一个{k:v}
+            for k, v in coupon_item.items():
+                print k
+                is_available = inspect_available_coupon_url_by_splinter(v)
+                print is_available
+                if is_available:
+                    break
+                delete_goods(k)
+
+
+    print "------ task {0} is over -------".format(os.getpid())
 
 
 def others():
     import time
     from selenium import webdriver
-    driver = webdriver.Chrome('/Users/zaijunwang/workspace/python/python_study/taobao/chromedriver')  # Optional argument, if not specified will search path.
+    # driver 存放的地方
+    #todo
+    driver = webdriver.Chrome('python_study/taobao/chromedriver')  # Optional argument, if not specified will search path.
     driver.get('http://www.google.com/xhtml')
     time.sleep(5)  # Let the user actually see something!
     search_box = driver.find_element_by_name('q')
@@ -154,30 +192,14 @@ def others():
 
 
 if __name__ == '__main__':
-    # websize3 ='https://acs.m.taobao.com/h5/mtop.alimama.union.hsf.coupon.get/1.0/?jsv=2.4.0&appKey=12574478&t=1532513807601&sign=820a8c3eee1dc0ef8b93536a33d4df4b&api=mtop.alimama.union.hsf.coupon.get&v=1.0&AntiCreep=true&AntiFlood=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22e%22%3A%2270j3Bx7OhTEN%2BoQUE6FNzCt2r3C6nco47p9sN9KDqyFJAnz9kT0QCQgWm%2FfO0WDutNTUrfdfC1CbTDaeY22YE3z%2F5lYwoL5IC0DytI6FkgR2pj%2BrIzI8SMweCqqdVU5pfOdaPeFJvj2RMjz%2FiQJRwmSLnIuvFTVk%22%2C%22pid%22%3A%22mm_128981071_39972563_150364908%22%7D'
-    websize3 ='https://uland.taobao.com/coupon/edetail?e=8enoEyP1lB8N%2BoQUE6FNzCt2r3C6nco47p9sN9KDqyFJAnz9kT0QCQgWm%2FfO0WDuKXH4Dp204Jn8UJYok44yznz%2F5lYwoL5ISB9Oxyt7%2BcDX18gaNN%2BIPporNYNlJ3NzEHNKdtmA%2FPZaEEz%2FJ22qjhezg1wrFfY3FlDJQsv%2B1e4%3D&af=1&pid=mm_128981071_39972563_150364908'
-    # websize3 ='https://uland.taobao.com/coupon/edetail?e=54PS3TEfQTAN%2BoQUE6FNzCt2r3C6nco47p9sN9KDqyFJAnz9kT0QCQgWm%2FfO0WDujHFe%2Fji3MW0QcvtLoqPS4Xz%2F5lYwoL5IC0DytI6FkgQtgMf7FUs3ubfxsi1c%2FlbUd3dYRnWQnO%2Bbg%2FMkcTHCkTNe5EyezcrR&af=1&pid=mm_128981071_39972563_150364908'
 
-    # splinter_coupon(websize3)
+    # 如果你要创建大量的进程可以使用这个
+    p = Pool()
 
-    skips = [0, 626, 625*2+1, 625*3+1]
-    pages = get_keys_by_page(home=31)
-    print pages
-    # keys = map(get_key_from_url, pages)
+    p.apply_async(do_actions, args=(1,))
+    p.apply_async(do_actions, args=(2,))
+    p.apply_async(do_actions, args=(3,))
+    p.apply_async(do_actions, args=(4,))
 
-    # print keys
-    #
-    # key = get_last_key()
-    # print "last key{0}".format(key)
-    #
-    # lemon_url = "http://www.lmyouxuan.com/goods/detail/{0}".format(key)
-    # print lemon_url
-    #
-    # ali_coupon_url = get_coupon_url_by_splinter(lemon_url)
-    #
-    # print inspect_available_coupon_url_by_splinter(ali_coupon_url)
-
-
-
-
-    # others()
+    p.close()
+    p.join()
