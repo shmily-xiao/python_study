@@ -15,14 +15,30 @@ lemon_url_pattern = re.compile("/goods/detail/\d+")
 def get_chorme():
     # 驱动存放的地方记得修改
     # todo
-    executable_path = {'executable_path': 'python/python_study/taobao/chromedriver'}
+    executable_path = {'executable_path': '/Users/zaijunwang/workspace/python/python_study/taobao/chromedriver'}
 
     browser = Browser('chrome', **executable_path)
     return browser
 
+def get_flask_client():
+
+    """
+        这个只能测试 flask 应用本身的链接
+        https://stackoverflow.com/questions/38862891/how-to-use-flask-driver-in-python-splinter
+    :return:
+    """
+    # pip install splinter[flask]
+    from splinter import Browser
+    from flask import Flask
+    app = Flask(__name__)
+
+    # from flask import app
+    browser = Browser('flask', app=app)
+
+    return browser
 
 
-def inspect_available_coupon_url_by_splinter(url):
+def inspect_available_coupon_url_by_splinter(url, browser):
     """
         判断这个url是否有效
 
@@ -32,7 +48,7 @@ def inspect_available_coupon_url_by_splinter(url):
     if not url:
         return True
 
-    browser = get_chorme()
+
 
     #login 126 email websize
     browser.visit(url)
@@ -42,12 +58,12 @@ def inspect_available_coupon_url_by_splinter(url):
 
     selector = '[class="coupons-price"]'
     div = browser.find_by_css(selector)
+
     try:
         print div.html
     except Exception as e:
+        print e
         return False
-    finally:
-        browser.quit()
 
     # time.sleep(0.5)
     #close the window of brower
@@ -116,19 +132,19 @@ def get_key_from_url(url):
     return long(url.split("/").pop())
 
 
-def get_keys_by_page(skip=0, home=""):
+def get_keys_by_page(skip=0, my_range=1, page_size=40, home=""):
 
     if home:
-        nextpage = "http://www.lmyouxuan.com/nextPage?page={0}&size=40&home={1}&isSearch=false"
+        nextpage = "http://www.lmyouxuan.com/nextPage?page={0}&size={1}&home={2}&isSearch=false"
     else:
-        nextpage = "http://www.lmyouxuan.com/nextPage?page={0}&size=40&isSearch=false"
+        nextpage = "http://www.lmyouxuan.com/nextPage?page={0}&size={1}&isSearch=false"
 
-    for item in xrange(625):
+    for item in xrange(my_range):
         item = item + skip
         if home:
-            url = nextpage.format(item + 1, home)
+            url = nextpage.format(item, page_size, home)
         else:
-            url = nextpage.format(item + 1)
+            url = nextpage.format(item, page_size)
         r = requests.get(url)
         print url
         html = r.json()
@@ -146,32 +162,52 @@ def delete_goods(key):
     url = "http://www.lmyouxuan.com/goods/delete/{0}".format(key)
     r = requests.get(url)
     print r
-    print "----->>>>>>>>> {0}".format(key)
+    print "----- delete >>>>>>>>> {0}".format(key)
 
 
-def do_actions(range_item=0):
+def do_actions(start=0, end=1, page_size=40, home=31):
+
+    """
+        左闭右开
+        比如start = 22， end = 33 ，，实际范围是 22 - 32   [23，33)
+
+    :param start:
+    :param end:
+    :param page_size:
+    :param home:
+    :return:
+    """
 
     print "------- task {0} is run ------".format(os.getpid())
+    print " start: {0} -- end:{1} -- page_size:{2} -- home:{3} ".format(start, end, page_size, home)
+
     time.sleep(1)
-    skips = [0, 626, 625 * 2 + 1, 625 * 3 + 1]
-    pages = get_keys_by_page(skip=skips[range_item%4], home=31)
+    # skips = [0, 626, 625 * 2 + 1, 625 * 3 + 1]
+
+    pages = get_keys_by_page(skip=start, my_range=end-start-1, page_size=page_size, home=home)
+
+    browser = get_chorme()
+
 
     for item in pages:
-
+    
         # [{k:v},{k:v}]
         for coupon_item in item:
-
+    
             # 其实只有一个{k:v}
             for k, v in coupon_item.items():
                 print k
-                is_available = inspect_available_coupon_url_by_splinter(v)
+                is_available = inspect_available_coupon_url_by_splinter(v, browser)
                 print is_available
                 if is_available:
                     break
                 delete_goods(k)
 
 
-    print "------ task {0} is over -------".format(os.getpid())
+    browser.quit()
+
+
+    print "\n------ task {0} is over -------".format(os.getpid())
 
 
 def others():
@@ -196,10 +232,19 @@ if __name__ == '__main__':
     # 如果你要创建大量的进程可以使用这个
     p = Pool()
 
-    p.apply_async(do_actions, args=(1,))
-    p.apply_async(do_actions, args=(2,))
-    p.apply_async(do_actions, args=(3,))
-    p.apply_async(do_actions, args=(4,))
+    pool_size = 1
+    total_num = 100
+    page_size = 40
+    home = 31
+
+    total_pages = total_num / page_size
+
+    for i in xrange(pool_size):
+        start = (total_pages / pool_size) * i
+        end = (total_pages / pool_size) * (i+1)
+
+        p.apply_async(do_actions, args=(start, end, page_size, home, ))
+
 
     p.close()
     p.join()

@@ -179,8 +179,8 @@ def get_goods_detail_urls(goods_id):
     try:
 
 
-        r = requests.get(url)
-        # r = requests.get(url, timeout=30)
+        # r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=30)
 
         pattern = re.compile('//\w*\.alicdn\.com/\w*/i\d/\d*/\w*[\.]*[-]*\w*!*\w*-?\w*\.jpg*|//\w*\.alicdn\.com/\w*/i\d/\w*[\.]*[-]*\w*!*\w*-?\w*\.SS2*')
         html = r.text
