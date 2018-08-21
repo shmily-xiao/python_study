@@ -65,3 +65,10 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    import sys
+    # Python 字节码解释器的工作原理是按照指令的顺序一条一条地顺序执行，
+    # Python 内部维护着一个数值，这个数值就是 Python 内部的时钟，
+    # 如果这个数值为 N，则意味着 Python 在执行了 N 条指令以后应该立即启动线程调度机制，
+    # 可以通过下面的代码获取这个数值。
+    print sys.getcheckinterval()

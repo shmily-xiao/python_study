@@ -1,24 +1,32 @@
-#!/usr/bin/env python
+    #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
 
-# class PrefixMetaclass(type):
-#
-#     def __new__(cls, name, bases, attrs):
-#         _attrs = (('my_' + name, value) for name, value in attrs.items())
-#
-#         _attrs = dict((name, value) for name, value in _attrs)
-#         _attrs['echo'] = lambda self, phrase: phrase # 增加了一个 echo 方法
-#
-#         return type.__new__(cls, name, bases, _attrs)
-#
-#
-# class Foo(object):
-#     __metaclass__ = PrefixMetaclass
-#     name = 'foo'
-#
-#     def bar(self):
-#         print 'bar'
+class PrefixMetaclass(type):
+
+    def __new__(cls, name, bases, attrs):
+        _attrs = (('my_' + name, value) for name, value in attrs.items())
+
+        _attrs = dict((name, value) for name, value in _attrs)
+        _attrs['echo'] = lambda self, phrase: phrase # 增加了一个 echo 方法
+
+        return type.__new__(cls, name, bases, _attrs)
+
+
+class Foo(object):
+    __metaclass__ = PrefixMetaclass
+    name = 'foo'
+
+    def bar(self):
+        print 'bar'
+
+def main1():
+    f = Foo()
+    # print f.name
+    print f.my_name
+    f.my_bar()
+    print f.echo('asdad')
+
 #
 # if __name__ == '__main__':
 #
@@ -113,6 +121,8 @@ def monkey_patch(name, bases, dct):
     for name, value in dct.iteritems():
         if name not in ('__module__', '__metaclass__'):
             setattr(base, name, value)
+        if name not in ["test"]:
+            setattr(base,"test","test")
     return base
 
 class A(object):
@@ -130,10 +140,11 @@ def main():
     pa = PatchA()
     pa.patcha_method()
     pa.a()
+    print pa.test
     print dir(pa)
     print dir(PatchA)
 
 if __name__ == '__main__':
     main()
-
+    # main1()
 
