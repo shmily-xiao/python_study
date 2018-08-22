@@ -33,7 +33,11 @@ def get_img_and_save():
     # print re.findall("/az/(\w*/?)*.*\.jpg", html)
     if not path:
         return
-    if not save_redis(path):
+
+    r = redis.Redis(host='localhost', port=6380, decode_responses=True, password='lemonyouxuan')
+    old = r.get('screen_background')
+
+    if old == path:
         return
     url = "http://www.bing.com" + path
     filename = path.split("/").pop()
@@ -41,21 +45,15 @@ def get_img_and_save():
     urllib.urlretrieve(url, filename)
     change_background(filename)
 
-
-def save_redis(path):
-    r = redis.Redis(host='localhost', port=6380, decode_responses=True, password='lemonyouxuan')
-
-    old = r.get('screen_background')
-    if old == path:
-        return None
-
     r.set('screen_background', path)  # key是"foo" value是"bar" 将键值对存入redis缓存
-
     # print(r['screen_background'])
     # print(r.get('screen_background'))  # 取出键name对应的值
     # print(type(r.get('screen_background')))
 
-    return True
+
+def save_redis(path):
+   pass
+
 
 
 if __name__ == '__main__':
