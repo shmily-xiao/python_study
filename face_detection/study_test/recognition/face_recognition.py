@@ -192,32 +192,33 @@ class RecognitionUtils(object):
 
 if __name__ == '__main__':
     util = RecognitionUtils()
-    # util.train()
-    # print "训练结束。。。"
-    # video_capture = cv2.VideoCapture(0)
-    # while True:
-    #     # 输入的图片
-    #     ret, image = video_capture.read()
-    #     # 检测到的人脸
-    #     faces = util.detect_faces(image)
-    #
-    #
-    #     for (x, y, width, height) in faces:
-    #         face_img = image[y:y + height, x:x + width]
-    #         face_img = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
-    #         face_img = cv2.resize(face_img, (150, 150), fx=0, fy=0)
-    #         face_img = LBP_one(face_img)
-    #         name = util.recognition(face_img)
-    #         cv2.rectangle(image, (x, y), (x + width, y + height), (255, 0, 0), 1)
-    #         cv2.putText(image, str(name), (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
-    #
-    #     # Display the resulting frame
-    #
-    #     cv2.imshow('Video', image)
-    #
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
-    path = "D:\\working\\python\\python_study\\face_detection\\lfw"
+    util.train()
+    print "训练结束。。。"
+    video_capture = cv2.VideoCapture(0)
+    while True:
+        # 输入的图片
+        ret, image = video_capture.read()
+        # 检测到的人脸
+        faces = util.detect_faces(image)
+
+
+        for (x, y, width, height) in faces:
+            face_img = image[y:y + height, x:x + width]
+            face_img = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
+            face_img = cv2.resize(face_img, (150, 150), fx=0, fy=0)
+            face_img = LBP_one(face_img)
+            name = util.recognition(face_img)
+            cv2.rectangle(image, (x, y), (x + width, y + height), (255, 0, 0), 1)
+            cv2.putText(image, str(name), (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
+
+        # Display the resulting frame
+
+        cv2.imshow('Video', image)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    path = "D:\\working\\python\\python_study\\face_detection\\att_faces"
     import time
     before = time.time()
     [X,y] = util.read_my_images(path)

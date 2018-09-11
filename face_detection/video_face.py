@@ -30,6 +30,7 @@ while True:
    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
    # cv2.imshow('Video2', frame)
+   # 拍照
    if cv2.waitKey(1) & 0xFF == ord('p'):
        cv2.imwrite(current_path+"\\image\\zipai{0}.jpg".format(count),frame)
        print "success {0} !".format(count)
@@ -55,7 +56,7 @@ while True:
 
    for (x, y, w, h) in faces:
        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 1)
-       cv2.putText(frame, "wangzaijun", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 1)
+       cv2.putText(frame, "wangzaijun", (int(x), int(y)), cv2.FONT_HERSHEY_TRIPLEX, 1, (0,0,255), 1)
 
 
    # Display the resulting frame
