@@ -9,7 +9,8 @@ import os
 
 current_path = os.getcwd()
 print current_path
-photopath = current_path + '\\att_faces\\s10\\6.pgm'
+# photopath = current_path + '\\att_faces\\s10\\6.pgm'
+photopath = current_path + '\\manypeople.jpg'
 # 效果最差 haarcascade_frontalface_alt_tree
 # 效果适中 haarcascade_frontalface_alt2
 # 效果容错率较高 haarcascade_frontalface_default
