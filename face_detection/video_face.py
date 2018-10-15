@@ -8,7 +8,7 @@ import cv2
 import os
 
 current_path = os.getcwd()
-classifier = current_path +  '\\haarcascade_frontalface_alt2.xml'
+classifier = current_path +  '/haarcascade_frontalface_alt2.xml'
 
 # import sys
 # cascPath = sys.argv[1]

@@ -19,6 +19,6 @@ def download(url):
     return data
 
 if __name__ == '__main__':
-    urls = ['https://10.143.160.250/lcx/scan/api/task/result/45245508-5a33-4199-b2f0-047388be7457'] * 20
+    urls = ['https://xxxxx/lcx/scan/api/task/result/45245508-5a33-4199-b2f0-047388be7457'] * 20
     pool = Pool(2)
     print pool.map(download, urls)
