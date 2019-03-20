@@ -53,21 +53,25 @@ def avg_handler(sheet):
     nrows = sheet.nrows  # 获取行总数
     ncols = sheet.ncols  # 获取列总数
 
-    flag = 0 # 23 开始计算平均值
-    sum_count = 0.0 # 为了计算23个小时个数
+    # flag = 0 # 23 开始计算平均值
+    # sum_count = 0.0 # 为了计算23个小时个数
     col_name = []
     result = {}
     data_time=[]
 
     pre_address_name = ""
     for col in xrange(ncols - 2):
+        flag = 0  # 23 开始计算平均值
+        sum_count = 0.0  # 为了计算23个小时个数
         col_name.append(sheet.cell_value(0,col+2))
         my_need_time = ""
         for row in xrange(nrows):
             if row == 0: continue
             point_name = sheet.cell_value(row,0)
-
-            create_time = time.strptime(sheet.cell_value(row,1), "%Y-%m-%d %H:%M")
+            try:
+                create_time = time.strptime(sheet.cell_value(row,1), "%Y-%m-%d %H:%M")
+            except:
+                create_time = time.strptime(sheet.cell_value(row, 1), "%Y/%m/%d %H:%M:$S")
             create_time_hour = create_time.tm_hour
             if create_time_hour == 11:
                 my_need_time = sheet.cell_value(row, 1)[0:10]
